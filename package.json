@@ -1,0 +1,26 @@
+{
+  "name": "streetjs-marzpay-demo",
+  "version": "1.0.0",
+  "description": "End-to-end demo proving StreetJS integrates with @streetjs/plugin-marzpay against the real MarzPay sandbox (Ugandan mobile-money collection).",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsc && node dist/server.js",
+    "build": "tsc",
+    "test": "vitest --run"
+  },
+  "dependencies": {
+    "streetjs": "^1.0.0",
+    "@streetjs/plugin-marzpay": "^1.1.0",
+    "reflect-metadata": "^0.2.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "fast-check": "^3.19.0",
+    "@types/node": "^20.14.0"
+  }
+}
