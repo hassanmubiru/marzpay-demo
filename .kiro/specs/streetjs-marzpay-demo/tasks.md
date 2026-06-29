@@ -33,13 +33,13 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: env records that drop/blank random subsets of the four required keys; assert `ok: false` and that `errors` names exactly the offending variables and no valid ones
     - Tag: `// Feature: streetjs-marzpay-demo, Property 1: ...`, minimum 100 runs
 
-  - [ ] 2.3 Write property test for PORT range validation
+  - [-] 2.3 Write property test for PORT range validation
     - **Property 2: PORT must be an integer in [1, 65535]**
     - **Validates: Requirements 1.6, 1.9**
     - Generators: non-numeric, fractional, zero, negative, and out-of-range `PORT` strings (expect error naming `PORT`), and otherwise-valid envs with integer ports in `[1, 65535]` (expect `config.port` to equal that integer)
     - Tag: `// Feature: streetjs-marzpay-demo, Property 2: ...`, minimum 100 runs
 
-  - [ ] 2.4 Write property test for MARZPAY_ENVIRONMENT enum and default
+  - [-] 2.4 Write property test for MARZPAY_ENVIRONMENT enum and default
     - **Property 3: MARZPAY_ENVIRONMENT enum and default resolution**
     - **Validates: Requirements 1.7, 1.8**
     - Generators: absent/empty (⇒ resolves to `sandbox`), exactly `sandbox`/`production` (⇒ resolves to the input), and arbitrary other non-empty strings (⇒ `ok: false` naming `MARZPAY_ENVIRONMENT`)
