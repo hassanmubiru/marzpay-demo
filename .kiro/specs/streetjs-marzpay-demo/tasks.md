@@ -83,7 +83,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Tag: `// Feature: streetjs-marzpay-demo, Property 15: ...`, minimum 100 runs
 
 - [ ] 4. Implement pure MarzPay helpers (`src/services/marzpay-helpers.ts`)
-  - [ ] 4.1 Implement `generateReference`, `isValidPhone`, `isCompletedStatus`, `parseWebhookReference`
+  - [x] 4.1 Implement `generateReference`, `isValidPhone`, `isCompletedStatus`, `parseWebhookReference`
     - `generateReference()`: return `crypto.randomUUID()`
     - `isValidPhone(client, phone)`: treat absent/empty as invalid, otherwise delegate to `client.isValidPhoneNumber(phone)`
     - `isCompletedStatus(status)`: single source of truth interpreting a status value as completed/successful (e.g. `completed`, `successful`, `success`)
@@ -100,8 +100,8 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Test `parseWebhookReference` for valid JSON with a reference, non-JSON bodies (`unparseable`), and JSON missing a reference (`missing_reference`); test `isCompletedStatus` for completed vs non-completed status values; test `isValidPhone` treats absent/empty as invalid and delegates otherwise
     - _Requirements: 5.3, 5.5, 7.2_
 
-- [ ] 5. Implement HTML views
-  - [ ] 5.1 Create `src/views/home.html` and `src/views/success.html`
+- [x] 5. Implement HTML views
+  - [x] 5.1 Create `src/views/home.html` and `src/views/success.html`
     - `home.html`: exact title text "StreetJS + MarzPay Demo", exactly one phone-number input control, and exactly one enabled button labeled "Pay 5000 UGX" inside a form that POSTs to `/checkout`
     - `success.html`: status-driven template surfacing the stored reference, `"{amount} {currency}"`, and stored status; shows "Payment Successful" only for a completed status and an awaiting-approval message for `pending`
     - Add any minimal static assets under `src/public/`
