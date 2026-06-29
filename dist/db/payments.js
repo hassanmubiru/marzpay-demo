@@ -116,4 +116,95 @@ export function rowToRecord(row) {
         createdAt: row.created_at ?? "",
     };
 }
+/* -------------------------------------------------------------------------- */
+/* Data access (task 3.2)                                                     */
+/* -------------------------------------------------------------------------- */
+/** SELECT used by {@link findByReference} and post-write read-backs. */
+const SELECT_BY_REFERENCE = `SELECT * FROM payments WHERE reference = ?`;
+/**
+ * Idempotently insert a pending {@link NewPayment} keyed by its reference.
+ *
+ * The insert runs inside a serialised transaction and uses
+ * `INSERT ... ON CONFLICT(reference) DO NOTHING`, so re-inserting a reference
+ * that already exists is a no-op: the existing row is left intact and no
+ * duplicate is created (Req 6.3). On any write failure the transaction is
+ * rolled back automatically — leaving no partial row — and a
+ * `{ ok: false, error }` result is returned so the caller can surface a
+ * database-write-failed indication (Req 6.4).
+ *
+ * @param payment The pending payment to persist (database assigns `id`).
+ * _Requirements: 6.2, 6.3, 6.4_
+ */
+export async function insertPending(payment) {
+    try {
+        const store = getPool();
+        await store.transaction(async (query) => {
+            await query(`INSERT INTO payments (reference, amount, currency, status, created_at)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(reference) DO NOTHING`, [
+                payment.reference,
+                payment.amount,
+                payment.currency,
+                payment.status,
+                payment.createdAt,
+            ]);
+        });
+        return { ok: true };
+    }
+    catch (err) {
+        return { ok: false, error: errorMessage(err) };
+    }
+}
+/**
+ * Mark an existing payment completed with the confirmed amount, currency, and
+ * status read from `transactions.get` (Req 6.2).
+ *
+ * The update runs inside a serialised transaction as a conditional
+ * `UPDATE ... WHERE reference = ?`, so it only ever touches the single row for
+ * that reference and is idempotent: applying the same completion repeatedly
+ * yields the same row with no duplicates (Req 6.3). On a write failure the
+ * transaction is rolled back, leaving no partial row, and a
+ * `{ ok: false, error }` result is returned (Req 6.4).
+ *
+ * @param reference The Reference identifying the payment to complete.
+ * @param fields    The confirmed amount, currency, and status to store.
+ * _Requirements: 6.2, 6.3, 6.4_
+ */
+export async function markCompleted(reference, fields) {
+    try {
+        const store = getPool();
+        await store.transaction(async (query) => {
+            await query(`UPDATE payments
+            SET amount = ?, currency = ?, status = ?
+          WHERE reference = ?`, [fields.amount, fields.currency, fields.status, reference]);
+        });
+        return { ok: true };
+    }
+    catch (err) {
+        return { ok: false, error: errorMessage(err) };
+    }
+}
+/**
+ * Look up the single stored {@link PaymentRecord} for a reference.
+ *
+ * @param reference The Reference to search for.
+ * @returns `{ found: true, payment }` when a matching record exists (Req 6.5),
+ *          otherwise `{ found: false }` (Req 6.6).
+ * _Requirements: 6.5, 6.6_
+ */
+export async function findByReference(reference) {
+    const result = await getPool().query(SELECT_BY_REFERENCE, [reference]);
+    const row = result.rows[0];
+    if (!row) {
+        return { found: false };
+    }
+    return { found: true, payment: rowToRecord(row) };
+}
+/** Extract a human-readable message from an unknown thrown value. */
+function errorMessage(err) {
+    if (err instanceof Error) {
+        return err.message;
+    }
+    return String(err);
+}
 //# sourceMappingURL=payments.js.map
