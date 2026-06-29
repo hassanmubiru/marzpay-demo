@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment Status &middot; StreetJS + MarzPay Demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <!--
+      Success_Page (Requirements 7.1, 7.2, 7.3).
+
+      TEMPLATING CONVENTION (SuccessController must match this exactly):
+      ------------------------------------------------------------------
+      This template uses simple double-brace placeholder tokens that the
+      SuccessController replaces (string substitution) before sending the
+      response. The controller is the single place that decides what each
+      token resolves to.
+
+        {{reference}}      -> the stored Payment_Record reference
+        {{amount}}         -> the stored amount (number)
+        {{currency}}       -> the stored currency code (e.g. "UGX")
+        {{status}}         -> the stored status value (e.g. "pending", "completed")
+        {{statusMessage}}  -> the status-driven, human-readable message.
+
+      STATUS-DRIVEN RULE (Req 7.2 / 7.3) — IMPORTANT:
+        The literal text "Payment Successful" MUST NOT appear anywhere in this
+        static template. It is injected ONLY through {{statusMessage}}, and ONLY
+        when isCompletedStatus(status) is true. The controller fills
+        {{statusMessage}} as follows:
+          - completed/successful status -> "Payment Successful"
+          - pending status              -> an awaiting-approval message, e.g.
+            "Your payment is awaiting approval on your phone."
+        This guarantees "Payment Successful" is shown only for a completed
+        status and never for a pending one.
+
+      The amount and currency are displayed together as "{amount} {currency}"
+      (amount, a single space, then the currency code) per Req 7.1 — note the
+      single literal space between the two tokens below.
+    -->
+    <main class="card">
+      <h1>Payment Status</h1>
+
+      <p class="status-message">{{statusMessage}}</p>
+
+      <dl class="details">
+        <dt>Reference</dt>
+        <dd class="reference">{{reference}}</dd>
+
+        <dt>Amount</dt>
+        <dd class="amount">{{amount}} {{currency}}</dd>
+
+        <dt>Status</dt>
+        <dd class="status">{{status}}</dd>
+      </dl>
+
+      <p><a class="back-link" href="/">Start another payment</a></p>
+    </main>
+  </body>
+</html>
