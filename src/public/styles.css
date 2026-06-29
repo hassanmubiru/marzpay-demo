@@ -1,0 +1,106 @@
+/* Minimal static styling for the StreetJS + MarzPay demo pages. */
+:root {
+  --bg: #0f172a;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --border: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.card {
+  width: 100%;
+  max-width: 28rem;
+  background: var(--card);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+.lead,
+.status-message {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.status-message {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pay-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.field {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+input[type="tel"] {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+button {
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--accent-hover);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1rem;
+  margin: 1.5rem 0;
+}
+
+.details dt {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.details dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+.back-link {
+  color: var(--accent);
+}
