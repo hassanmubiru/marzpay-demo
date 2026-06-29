@@ -8,7 +8,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
 
 ## Tasks
 
-- [ ] 1. Initialize project scaffolding and dependencies
+- [x] 1. Initialize project scaffolding and dependencies
   - [x] 1.1 Create `package.json`, `tsconfig.json`, and source layout
     - Initialize `package.json` declaring `streetjs` and `@streetjs/plugin-marzpay` as dependencies, plus `reflect-metadata` and `dotenv`; set `"type": "module"`; declare a Node.js engine of `">=20"`
     - Add dev dependencies: `typescript`, `vitest`, `fast-check`, `@types/node`
@@ -17,7 +17,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Create the source directory structure: `src/`, `src/controllers/`, `src/services/`, `src/db/`, `src/views/`, `src/public/`, `test/`
     - _Requirements: 1.1, 1.2, 1.10_
 
-  - [ ] 1.2 Create `.env.example` with the five variables
+  - [x] 1.2 Create `.env.example` with the five variables
     - List `MARZPAY_API_KEY`, `MARZPAY_SECRET_KEY`, `MARZPAY_ENVIRONMENT`, `APP_URL`, and `PORT` with placeholder values and brief inline comments (noting `MARZPAY_ENVIRONMENT` is optional and defaults to `sandbox`)
     - _Requirements: 1.3_
 
