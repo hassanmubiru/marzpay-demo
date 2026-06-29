@@ -52,7 +52,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Allow the database handle to be configurable (file path or in-memory/temp) so tests can use an in-memory DB
     - _Requirements: 6.1_
 
-  - [ ] 3.2 Implement `insertPending`, `markCompleted`, and `findByReference`
+  - [-] 3.2 Implement `insertPending`, `markCompleted`, and `findByReference`
     - `insertPending(payment)`: insert a pending record keyed by reference using `INSERT ... ON CONFLICT(reference) DO NOTHING` inside a transaction; idempotent (existing row left intact, no duplicate); return `{ ok: false, error }` on write failure with no partial row
     - `markCompleted(reference, { amount, currency, status })`: conditional `UPDATE` inside a transaction; idempotent by reference; leaves no partial row on failure
     - `findByReference(reference)`: return `{ found: true, payment }` or `{ found: false }`
@@ -90,7 +90,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - `parseWebhookReference(rawBody)`: return `{ ok: true, reference }` or `{ ok: false, reason: "unparseable" | "missing_reference" }`; no network, no framework
     - _Requirements: 4.3, 5.3, 5.5, 5.6, 7.2_
 
-  - [ ] 4.2 Write property test for unique reference generation
+  - [-] 4.2 Write property test for unique reference generation
     - **Property 5: Generated references are unique**
     - **Validates: Requirements 4.3**
     - Generators: large N `generateReference()` calls; assert all generated references are distinct
