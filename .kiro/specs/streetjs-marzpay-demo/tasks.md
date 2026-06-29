@@ -22,7 +22,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - _Requirements: 1.3_
 
 - [ ] 2. Implement pure configuration validation (`src/config.ts`)
-  - [ ] 2.1 Implement `validateConfig`
+  - [x] 2.1 Implement `validateConfig`
     - Define `MarzPayEnvironment`, `AppConfig`, and `ConfigResult` types per the design
     - Implement a pure `validateConfig(env)` (no `process.exit`, no I/O) that: treats `MARZPAY_API_KEY`, `MARZPAY_SECRET_KEY`, `APP_URL`, `PORT` as required (absent or empty string ⇒ offending); parses `PORT` to an integer in `[1, 65535]`; resolves `MARZPAY_ENVIRONMENT` (absent/empty ⇒ `sandbox`; `sandbox`/`production` accepted; any other non-empty value ⇒ offending); and returns `ok: false` with an `errors` array naming **every** offending variable (and none that are valid), else `ok: true` with the resolved `AppConfig`
     - _Requirements: 1.4, 1.5, 1.6, 1.7, 1.8, 1.9_
@@ -46,7 +46,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Tag: `// Feature: streetjs-marzpay-demo, Property 3: ...`, minimum 100 runs
 
 - [ ] 3. Implement the built-in-SQLite persistence layer (`src/db/payments.ts` — `Payment_Store`)
-  - [ ] 3.1 Implement schema initialization and types
+  - [x] 3.1 Implement schema initialization and types
     - Define `PaymentRecord`, `NewPayment`, `WriteResult`, and `LookupResult` types per the design
     - Implement `initSchema()` against the StreetJS built-in SQLite, creating the `payments` table with columns id (PK AUTOINCREMENT), reference (TEXT NOT NULL UNIQUE), amount (REAL NOT NULL), currency (TEXT NOT NULL), status (TEXT NOT NULL), created_at (TEXT NOT NULL ISO 8601 UTC)
     - Allow the database handle to be configurable (file path or in-memory/temp) so tests can use an in-memory DB
