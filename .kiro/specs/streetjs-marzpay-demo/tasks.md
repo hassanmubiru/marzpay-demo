@@ -27,7 +27,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Implement a pure `validateConfig(env)` (no `process.exit`, no I/O) that: treats `MARZPAY_API_KEY`, `MARZPAY_SECRET_KEY`, `APP_URL`, `PORT` as required (absent or empty string ⇒ offending); parses `PORT` to an integer in `[1, 65535]`; resolves `MARZPAY_ENVIRONMENT` (absent/empty ⇒ `sandbox`; `sandbox`/`production` accepted; any other non-empty value ⇒ offending); and returns `ok: false` with an `errors` array naming **every** offending variable (and none that are valid), else `ok: true` with the resolved `AppConfig`
     - _Requirements: 1.4, 1.5, 1.6, 1.7, 1.8, 1.9_
 
-  - [ ] 2.2 Write property test for required-variable completeness
+  - [-] 2.2 Write property test for required-variable completeness
     - **Property 1: Configuration requires all mandatory variables**
     - **Validates: Requirements 1.4, 1.5**
     - Generators: env records that drop/blank random subsets of the four required keys; assert `ok: false` and that `errors` names exactly the offending variables and no valid ones
