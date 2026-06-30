@@ -107,7 +107,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Add any minimal static assets under `src/public/`
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 7.1, 7.2, 7.3_
 
-- [ ] 6. Implement controllers
+- [x] 6. Implement controllers
   - [x] 6.1 Implement `HomeController` (`src/controllers/home.controller.ts`)
     - `@Controller('/')` with `@Get`; render `views/home.html`; return 200 on success and 500 with a "could not be loaded" message if rendering throws
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
@@ -185,21 +185,21 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: stored records with completed and `pending` statuses; assert "Payment Successful" appears iff `isCompletedStatus(status)` is true, and that a `pending` record shows an awaiting-approval message and not "Payment Successful"
     - Tag: `// Feature: streetjs-marzpay-demo, Property 17: ...`, minimum 100 runs
 
-  - [-] 6.15 Write property test for success page unknown-reference handling
+  - [x] 6.15 Write property test for success page unknown-reference handling
     - **Property 18: Success page reports unknown references as not found**
     - **Validates: Requirements 7.4**
     - Generators: references guaranteed absent; assert HTTP 404, a "payment not found" message, and no "Payment Successful" text
     - Tag: `// Feature: streetjs-marzpay-demo, Property 18: ...`, minimum 100 runs
 
-  - [-] 6.16 Write unit test for success page missing-reference case
+  - [x] 6.16 Write unit test for success page missing-reference case
     - Assert a request with no `reference` returns HTTP 400 with "a reference is required" and does not show "Payment Successful"
     - _Requirements: 7.5_
 
-- [ ] 7. Checkpoint - Ensure all tests pass
+- [-] 7. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 8. Implement server bootstrap and wiring (`src/server.ts`)
-  - [-] 8.1 Wire the startup sequence: load env → validate → app → install plugin → register controllers → init schema → listen
+  - [x] 8.1 Wire the startup sequence: load env → validate → app → install plugin → register controllers → init schema → listen
     - Load `.env` via `dotenv`, call `validateConfig(process.env)`; on `ok: false` print every error and exit non-zero **before** any app creation, plugin install, or port bind
     - Create the app with `streetApp({ port, host })`; install `MarzPayPlugin({ apiKey: MARZPAY_API_KEY, secretKey: MARZPAY_SECRET_KEY, environment: <resolved>, stateKey: 'marzpay', timeoutMs })`; on install failure print an install-failed message and exit non-zero
     - `registerController` for `HomeController`, `CheckoutController`, `SuccessController`, `WebhookController` (relying on StreetJS default 404 for unmatched paths); call `initSchema()`; then `await app.listen()`
