@@ -12,7 +12,7 @@
 import type { StreetContext } from "streetjs";
 import { Controller, Get, Post } from "streetjs";
 
-import { insertPending, findByReference } from "../db/payments.js";
+import { insertPending, findByReference } from "../db/store.js";
 import {
   generateReference,
   isValidPhone,
