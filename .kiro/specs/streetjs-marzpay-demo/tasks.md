@@ -199,7 +199,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 8. Implement server bootstrap and wiring (`src/server.ts`)
-  - [ ] 8.1 Wire the startup sequence: load env → validate → app → install plugin → register controllers → init schema → listen
+  - [-] 8.1 Wire the startup sequence: load env → validate → app → install plugin → register controllers → init schema → listen
     - Load `.env` via `dotenv`, call `validateConfig(process.env)`; on `ok: false` print every error and exit non-zero **before** any app creation, plugin install, or port bind
     - Create the app with `streetApp({ port, host })`; install `MarzPayPlugin({ apiKey: MARZPAY_API_KEY, secretKey: MARZPAY_SECRET_KEY, environment: <resolved>, stateKey: 'marzpay', timeoutMs })`; on install failure print an install-failed message and exit non-zero
     - `registerController` for `HomeController`, `CheckoutController`, `SuccessController`, `WebhookController` (relying on StreetJS default 404 for unmatched paths); call `initSchema()`; then `await app.listen()`
