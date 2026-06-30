@@ -64,7 +64,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: random confirmed transaction results (amount/currency/status); after `markCompleted`, assert exactly one record for the reference whose amount/currency/status equal the confirmed values and whose `created_at` is a valid ISO 8601 UTC timestamp
     - Tag: `// Feature: streetjs-marzpay-demo, Property 12: ...`, minimum 100 runs
 
-  - [-] 3.4 Write property test for idempotent persistence
+  - [x] 3.4 Write property test for idempotent persistence
     - **Property 13: Persistence is idempotent by reference**
     - **Validates: Requirements 6.3**
     - Generators: an arbitrary reference processed 1..k times (repeated `insertPending`/`markCompleted`) against an in-memory DB; assert exactly one row remains for that reference with no duplicates
