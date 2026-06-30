@@ -108,7 +108,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 7.1, 7.2, 7.3_
 
 - [ ] 6. Implement controllers
-  - [-] 6.1 Implement `HomeController` (`src/controllers/home.controller.ts`)
+  - [x] 6.1 Implement `HomeController` (`src/controllers/home.controller.ts`)
     - `@Controller('/')` with `@Get`; render `views/home.html`; return 200 on success and 500 with a "could not be loaded" message if rendering throws
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
