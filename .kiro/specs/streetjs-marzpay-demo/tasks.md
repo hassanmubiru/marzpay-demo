@@ -112,7 +112,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - `@Controller('/')` with `@Get`; render `views/home.html`; return 200 on success and 500 with a "could not be loaded" message if rendering throws
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [ ] 6.2 Write unit test for home page contents
+  - [-] 6.2 Write unit test for home page contents
     - Assert 200 with exact title "StreetJS + MarzPay Demo", exactly one phone-number input, exactly one enabled "Pay 5000 UGX" button posting to `/checkout`, and 500 on an induced render failure
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
