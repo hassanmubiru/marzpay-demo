@@ -58,7 +58,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - `findByReference(reference)`: return `{ found: true, payment }` or `{ found: false }`
     - _Requirements: 6.2, 6.3, 6.4, 6.5, 6.6_
 
-  - [ ] 3.3 Write property test for completed-payment field persistence
+  - [-] 3.3 Write property test for completed-payment field persistence
     - **Property 12: Completed payments persist the confirmed transaction fields**
     - **Validates: Requirements 6.2**
     - Generators: random confirmed transaction results (amount/currency/status); after `markCompleted`, assert exactly one record for the reference whose amount/currency/status equal the confirmed values and whose `created_at` is a valid ISO 8601 UTC timestamp
@@ -140,7 +140,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: `collectMoney` invocations that reject with error or timeout-style rejections; assert HTTP 502, a "payment initiation failed" message, and no `Payment_Record` persisted
     - Tag: `// Feature: streetjs-marzpay-demo, Property 8: ...`, minimum 100 runs
 
-  - [ ] 6.7 Implement `WebhookController` (`src/controllers/webhook.controller.ts`)
+  - [-] 6.7 Implement `WebhookController` (`src/controllers/webhook.controller.ts`)
     - `@Controller('/webhooks/marzpay')` with `@Post`; read the **raw** body and signature; call `marzpay.validateWebhook(rawBody, signature)` first, before reading content or touching any record
     - Invalid → HTTP 401, store unchanged; validated but `parseWebhookReference` is unparseable / has no reference → HTTP 400, store unchanged
     - Call authoritative `marzpay.collections.getStatus(reference)`; if `isCompletedStatus` is false → HTTP 200, status unchanged; if true → read `marzpay.transactions.get(reference)` and `markCompleted`, returning HTTP 200; on DB write failure → HTTP 500 "database write failed" with no partial row
@@ -168,7 +168,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Assert `validateWebhook` is invoked before any parse/persist and `getStatus` is invoked before completion is recorded; assert that an induced `Payment_Store` write failure yields HTTP 500 with a database-write-failed indication and no partial row
     - _Requirements: 5.1, 5.4, 6.4_
 
-  - [ ] 6.12 Implement `SuccessController` (`src/controllers/success.controller.ts`)
+  - [-] 6.12 Implement `SuccessController` (`src/controllers/success.controller.ts`)
     - `@Controller('/success')` with `@Get`; no `reference` query param → HTTP 400 "a reference is required" and not "Payment Successful"
     - Look up via `findByReference`; not found → HTTP 404 "payment not found" and not "Payment Successful"; found → HTTP 200 rendering `views/success.html` with the stored reference, `"{amount} {currency}"`, and stored status, status-driven ("Payment Successful" only when `isCompletedStatus` is true, otherwise an awaiting-approval message)
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
