@@ -29,6 +29,7 @@ coverage/
 .vitest/
 
 # Editor / OS
+.vscode/
 .DS_Store
 Thumbs.db
 .idea/
