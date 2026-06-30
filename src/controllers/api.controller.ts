@@ -45,30 +45,58 @@ function readPhoneNumber(ctx: StreetContext): string | undefined {
   return undefined;
 }
 
+/** Read the submitted amount (number or string) from a JSON body. */
+function readAmount(ctx: StreetContext): unknown {
+  const body = ctx.body;
+  if (body !== null && typeof body === "object" && !Array.isArray(body)) {
+    return (body as Record<string, unknown>)["amount"];
+  }
+  return undefined;
+}
+
 @Controller("/api/checkout")
 export class ApiCheckoutController {
   /**
-   * POST /api/checkout — initiate a mobile-money collection and persist a
-   * pending record. Mirrors CheckoutController but responds with JSON.
+   * POST /api/checkout — initiate a mobile-money collection for a user-selected
+   * amount and persist a pending record. Responds with JSON.
+   *
+   * Body: { phone_number: string, amount: number | string }
+   *   - phone_number accepts local (07…) or international (+…) formats.
+   *   - amount must be a whole number of UGX in [500, 1_000_000].
    */
   @Post("/")
   async create(ctx: StreetContext): Promise<void> {
     const marzpay = ctx.state["marzpay"] as MarzPayClient | undefined;
-    const phoneNumber = readPhoneNumber(ctx);
+    const rawPhone = readPhoneNumber(ctx);
 
-    if (marzpay === undefined || !isValidPhone(marzpay.utils, phoneNumber)) {
+    if (marzpay === undefined) {
+      ctx.json({ error: "payment service unavailable" }, 503);
+      return;
+    }
+
+    // Accept local or international phone formats; get back a normalized E.164.
+    const phoneNumber = acceptablePhone(marzpay.utils, rawPhone);
+    if (phoneNumber === null) {
       ctx.json({ error: "a valid phone number is required" }, 400);
       return;
     }
+
+    // Validate the user-selected amount (500 – 1,000,000 UGX).
+    const amountResult = parseAmount(readAmount(ctx));
+    if (!amountResult.ok) {
+      ctx.json({ error: amountResult.error }, 400);
+      return;
+    }
+    const amount = amountResult.amount;
 
     const reference = generateReference();
 
     try {
       await marzpay.collections.collectMoney({
-        amount: PAYMENT_AMOUNT,
+        amount,
         country: PAYMENT_COUNTRY,
         reference,
-        phone_number: phoneNumber as string,
+        phone_number: phoneNumber,
       });
     } catch {
       ctx.json({ error: "payment initiation failed" }, 502);
@@ -77,7 +105,7 @@ export class ApiCheckoutController {
 
     const write = await insertPending({
       reference,
-      amount: PAYMENT_AMOUNT,
+      amount,
       currency: PAYMENT_CURRENCY,
       status: PENDING_STATUS,
       createdAt: new Date().toISOString(),
@@ -89,7 +117,7 @@ export class ApiCheckoutController {
 
     const dto: PaymentDto = {
       reference,
-      amount: PAYMENT_AMOUNT,
+      amount,
       currency: PAYMENT_CURRENCY,
       status: PENDING_STATUS,
       completed: false,
