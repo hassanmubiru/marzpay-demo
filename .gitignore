@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment files (contain secrets — never commit)
+.env
+.env.local
+.env.*.local
+*.env
+
+# SQLite databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+payments.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test / coverage output
+coverage/
+.vitest/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# Keep the example env template tracked
+!.env.example
