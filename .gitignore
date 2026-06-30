@@ -45,3 +45,4 @@ Thumbs.db
 
 # Keep the example env template tracked
 !.env.example
+.vercel
