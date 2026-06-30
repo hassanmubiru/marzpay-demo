@@ -241,7 +241,14 @@ export async function assembleApp(): Promise<BootstrapResult | undefined> {
   }
 
   // Serve the built React SPA under /app (StreetJS core has no static serving).
-  const spaRoot = fileURLToPath(new URL("../web/dist", import.meta.url));
+  // Resolve the build dir robustly across local (relative to dist/server.js)
+  // and serverless (bundle at the lambda root, web/dist included via cwd).
+  const spaCandidates = [
+    process.env.SPA_DIST_DIR,
+    fileURLToPath(new URL("../web/dist", import.meta.url)),
+    resolve(process.cwd(), "web/dist"),
+  ].filter((p): p is string => Boolean(p));
+  const spaRoot = spaCandidates.find((p) => existsSync(p)) ?? spaCandidates[0]!;
   app.use(createSpaMiddleware({ root: spaRoot, mountPath: "/app" }));
 
   return result;
