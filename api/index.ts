@@ -25,10 +25,24 @@ let appPromise: Promise<StreetApp> | null = null;
 
 async function getApp(): Promise<StreetApp> {
   if (!appPromise) {
-    appPromise = assembleApp().then((result) => {
+    // Collect startup error messages and convert process-exit into a thrown
+    // error, so a misconfiguration surfaces as a readable 500 instead of a
+    // FUNCTION_INVOCATION_FAILED crash (bootstrap would otherwise process.exit).
+    const startupErrors: string[] = [];
+    appPromise = assembleApp({
+      printError: (m: string) => startupErrors.push(m),
+      log: () => undefined,
+      exit: (code: number) => {
+        throw new Error(
+          `Startup aborted (exit ${code}): ${
+            startupErrors.join("; ") || "see configuration/plugin errors"
+          }`,
+        );
+      },
+    }).then((result) => {
       if (!result) {
         throw new Error(
-          "App assembly aborted: invalid configuration or plugin install failure",
+          `App assembly aborted: ${startupErrors.join("; ") || "unknown error"}`,
         );
       }
       return result.app;
