@@ -158,13 +158,13 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: `validateWebhook=true` with non-JSON bodies or JSON lacking a reference; assert HTTP 400 and every existing `Payment_Record` left unchanged
     - Tag: `// Feature: streetjs-marzpay-demo, Property 10: ...`, minimum 100 runs
 
-  - [-] 6.10 Write property test for status-driven authoritative completion
+  - [x] 6.10 Write property test for status-driven authoritative completion
     - **Property 11: Webhook completion is status-driven and authoritative**
     - **Validates: Requirements 5.4, 5.5, 5.6**
     - Generators: validated webhooks carrying a reference with completed and non-completed `getStatus` values (stub `getStatus`/`transactions.get`, in-memory DB); assert `getStatus` is called first, that on a completed status the record is recorded completed using `transactions.get` fields with HTTP 200, and that on a non-completed status the response is HTTP 200 with the record's status unchanged
     - Tag: `// Feature: streetjs-marzpay-demo, Property 11: ...`, minimum 100 runs
 
-  - [-] 6.11 Write unit tests for webhook ordering and DB write-failure path
+  - [x] 6.11 Write unit tests for webhook ordering and DB write-failure path
     - Assert `validateWebhook` is invoked before any parse/persist and `getStatus` is invoked before completion is recorded; assert that an induced `Payment_Store` write failure yields HTTP 500 with a database-write-failed indication and no partial row
     - _Requirements: 5.1, 5.4, 6.4_
 
