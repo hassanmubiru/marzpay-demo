@@ -26,6 +26,8 @@
 
 import "reflect-metadata";
 
+import { fileURLToPath } from "node:url";
+
 import { config as loadDotenv } from "dotenv";
 import { streetApp } from "streetjs";
 import type { Constructor, StreetApp, StreetAppOptions } from "streetjs";
@@ -197,7 +199,34 @@ function errorMessage(err: unknown): string {
 
 /** Real entry point: bootstrap with the production dependencies. */
 export async function main(): Promise<void> {
-  await bootstrap();
+  // Register the four core controllers PLUS the JSON API controllers the SPA
+  // consumes. The default CONTROLLERS list (the tested four) is left unchanged;
+  // the API controllers are added only here in the real entry point.
+  const result = await bootstrap({
+    controllers: [
+      ...CONTROLLERS,
+      ApiCheckoutController,
+      ApiPaymentsController,
+    ],
+    listen: false,
+  });
+  if (!result) {
+    return; // startup aborted; bootstrap already exited non-zero.
+  }
+
+  const { app, config } = result;
+
+  // Serve the built React SPA under /app (StreetJS core has no static serving).
+  const spaRoot = fileURLToPath(new URL("../web/dist", import.meta.url));
+  app.use(createSpaMiddleware({ root: spaRoot, mountPath: "/app" }));
+
+  await app.listen();
+  console.log(
+    `StreetJS + MarzPay demo listening on http://${DEFAULT_HOST}:${config.port}` +
+      ` (MarzPay environment: ${config.marzpayEnvironment})`,
+  );
+  console.log(`  - Server-rendered UI:  http://localhost:${config.port}/`);
+  console.log(`  - React SPA (SDK):     http://localhost:${config.port}/app`);
 }
 
 // Auto-run when executed directly (e.g. `node dist/server.js`), but not when
