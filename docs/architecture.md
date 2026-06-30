@@ -20,6 +20,37 @@ The MarzPay client (injected by the plugin at `ctx.state.marzpay`) is the
 integration boundary for all payment operations. Persistence is abstracted
 behind a facade that selects SQLite or Supabase at runtime.
 
+```mermaid
+flowchart TD
+    Browser([Browser])
+    subgraph App["StreetJS app (one backend)"]
+        Home["HomeController<br/>GET /"]
+        Checkout["CheckoutController<br/>POST /checkout"]
+        Success["SuccessController<br/>GET /success"]
+        Webhook["WebhookController<br/>POST /webhooks/marzpay"]
+        ApiCo["ApiCheckoutController<br/>POST /api/checkout"]
+        ApiPay["ApiPaymentsController<br/>GET /api/payments/:ref"]
+        SPA["SPA middleware<br/>GET /app/**"]
+        Store{{"Payment store facade"}}
+    end
+    MP[(MarzPay sandbox)]
+    SQLite[("Built-in SQLite<br/>(local)")]
+    Supa[("Supabase events<br/>(serverless)")]
+
+    Browser -->|"/, /checkout, /success"| Home & Checkout & Success
+    Browser -->|"/app (React SPA)"| SPA
+    Browser -->|"/api/*"| ApiCo & ApiPay
+    MP -->|webhook| Webhook
+
+    Checkout & ApiCo -->|collectMoney| MP
+    Webhook -->|getStatus / transactions.get| MP
+    Checkout & ApiCo & Webhook & Success & ApiPay --> Store
+    Store -->|"SUPABASE_URL unset"| SQLite
+    Store -->|"SUPABASE_URL set"| Supa
+```
+
+Text view of the same topology:
+
 ```
 Browser ──▶ StreetJS app
    │           ├─ HomeController        GET  /
