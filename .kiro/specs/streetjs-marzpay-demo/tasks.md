@@ -191,7 +191,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: references guaranteed absent; assert HTTP 404, a "payment not found" message, and no "Payment Successful" text
     - Tag: `// Feature: streetjs-marzpay-demo, Property 18: ...`, minimum 100 runs
 
-  - [ ] 6.16 Write unit test for success page missing-reference case
+  - [-] 6.16 Write unit test for success page missing-reference case
     - Assert a request with no `reference` returns HTTP 400 with "a reference is required" and does not show "Payment Successful"
     - _Requirements: 7.5_
 
