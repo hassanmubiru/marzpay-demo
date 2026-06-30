@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 import { Controller, Get, escapeHtml } from "streetjs";
 import type { StreetContext } from "streetjs";
 
-import { findByReference } from "../db/payments.js";
+import { findByReference } from "../db/store.js";
 import { isCompletedStatus } from "../services/marzpay-helpers.js";
 
 /**
