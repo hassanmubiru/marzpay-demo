@@ -227,7 +227,7 @@ export async function assembleApp(): Promise<BootstrapResult | undefined> {
 
   // Load the Supabase plugin when connection settings are present, exposing the
   // Supabase client at ctx.state.supabase (the durable store also uses it).
-  if (usingSupabase) {
+  if (usingSupabase()) {
     const url = process.env.SUPABASE_URL as string;
     const apiKey = (process.env.SUPABASE_KEY ??
       process.env.SUPABASE_SERVICE_ROLE_KEY) as string;
@@ -270,7 +270,7 @@ export async function main(): Promise<void> {
   console.log(`  - Server-rendered UI:  http://localhost:${config.port}/`);
   console.log(`  - React SPA (SDK):     http://localhost:${config.port}/app`);
   console.log(
-    `  - Persistence:         ${usingSupabase ? "Supabase (append-only)" : "built-in SQLite"}`,
+    `  - Persistence:         ${usingSupabase() ? "Supabase (append-only)" : "built-in SQLite"}`,
   );
 }
 
