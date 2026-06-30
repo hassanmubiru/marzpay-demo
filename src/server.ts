@@ -210,7 +210,9 @@ function errorMessage(err: unknown): string {
  *
  * Returns `undefined` if startup was aborted (invalid config / failed install).
  */
-export async function assembleApp(): Promise<BootstrapResult | undefined> {
+export async function assembleApp(
+  overrides: Pick<BootstrapDeps, "exit" | "printError" | "log" | "env"> = {},
+): Promise<BootstrapResult | undefined> {
   const result = await bootstrap({
     controllers: [
       ...CONTROLLERS,
@@ -218,6 +220,7 @@ export async function assembleApp(): Promise<BootstrapResult | undefined> {
       ApiPaymentsController,
     ],
     listen: false,
+    ...overrides,
   });
   if (!result) {
     return undefined;
