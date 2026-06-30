@@ -25,7 +25,7 @@ import type { IncomingMessage } from "node:http";
 import { Controller, Post } from "streetjs";
 import type { StreetContext } from "streetjs";
 
-import { insertPending } from "../db/payments.js";
+import { insertPending } from "../db/store.js";
 import { generateReference, isValidPhone } from "../services/marzpay-helpers.js";
 import type { MarzPayClient } from "../services/marzpay-types.js";
 

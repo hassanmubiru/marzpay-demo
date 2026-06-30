@@ -18,7 +18,7 @@
 import type { StreetContext } from "streetjs";
 import { Controller, Post } from "streetjs";
 
-import { markCompleted } from "../db/payments.js";
+import { markCompleted } from "../db/store.js";
 import {
   isCompletedStatus,
   parseWebhookReference,
