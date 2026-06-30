@@ -10,6 +10,12 @@ interface PaymentDto {
   completed: boolean;
 }
 
+// The checkout resource accepts a phone number on create and returns the
+// created payment, so its entity type extends PaymentDto with the input field.
+interface CheckoutEntity extends PaymentDto {
+  phone_number: string;
+}
+
 type Phase = "idle" | "submitting" | "tracking";
 
 /** Pull a human-readable message out of a StreetApiError or unknown error. */
@@ -69,7 +75,7 @@ export function App() {
       setPhase("submitting");
       try {
         const created = await api
-          .resource<PaymentDto>("checkout")
+          .resource<CheckoutEntity>("checkout")
           .create({ phone_number: phone });
         setPayment(created);
         setPhase("tracking");
