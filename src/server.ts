@@ -40,6 +40,11 @@ import { HomeController } from "./controllers/home.controller.js";
 import { CheckoutController } from "./controllers/checkout.controller.js";
 import { SuccessController } from "./controllers/success.controller.js";
 import { WebhookController } from "./controllers/webhook.controller.js";
+import {
+  ApiCheckoutController,
+  ApiPaymentsController,
+} from "./controllers/api.controller.js";
+import { createSpaMiddleware } from "./web-static.js";
 
 /** State key under which the MarzPay client is injected (Req 2.4). */
 export const MARZPAY_STATE_KEY = "marzpay";
