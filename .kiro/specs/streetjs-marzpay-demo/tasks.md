@@ -173,7 +173,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Look up via `findByReference`; not found → HTTP 404 "payment not found" and not "Payment Successful"; found → HTTP 200 rendering `views/success.html` with the stored reference, `"{amount} {currency}"`, and stored status, status-driven ("Payment Successful" only when `isCompletedStatus` is true, otherwise an awaiting-approval message)
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-  - [-] 6.13 Write property test for success page field rendering
+  - [x] 6.13 Write property test for success page field rendering
     - **Property 16: Success page always renders the stored record's fields**
     - **Validates: Requirements 7.1**
     - Generators: arbitrary stored records; assert HTTP 200 and that the stored reference, `"{amount} {currency}"` formatting (amount, single space, currency code), and stored status are rendered
