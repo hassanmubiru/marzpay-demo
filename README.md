@@ -26,6 +26,8 @@ built-in SQLite (local) or to **Supabase** (production) via
 | [docs/api.md](docs/api.md) | JSON API reference (`/api/checkout`, `/api/payments/:reference`) |
 | [docs/configuration.md](docs/configuration.md) | Every environment variable and the SQLite ↔ Supabase switch |
 | [docs/local-development.md](docs/local-development.md) | Running the backend and the SPA dev server locally |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Common issues (Vercel crashes, cold starts, webhooks, SPA types) and fixes |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Dev setup, conventions, and test expectations |
 | [DEPLOY.md](DEPLOY.md) | Deploying to Vercel + Supabase, step by step |
 
 ## Setup
