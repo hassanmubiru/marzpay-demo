@@ -179,7 +179,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: arbitrary stored records; assert HTTP 200 and that the stored reference, `"{amount} {currency}"` formatting (amount, single space, currency code), and stored status are rendered
     - Tag: `// Feature: streetjs-marzpay-demo, Property 16: ...`, minimum 100 runs
 
-  - [-] 6.14 Write property test for status-driven success rendering
+  - [x] 6.14 Write property test for status-driven success rendering
     - **Property 17: Success page rendering is status-driven**
     - **Validates: Requirements 7.2, 7.3**
     - Generators: stored records with completed and `pending` statuses; assert "Payment Successful" appears iff `isCompletedStatus(status)` is true, and that a `pending` record shows an awaiting-approval message and not "Payment Successful"
