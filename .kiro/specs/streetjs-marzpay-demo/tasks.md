@@ -195,7 +195,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Assert a request with no `reference` returns HTTP 400 with "a reference is required" and does not show "Payment Successful"
     - _Requirements: 7.5_
 
-- [-] 7. Checkpoint - Ensure all tests pass
+- [x] 7. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 8. Implement server bootstrap and wiring (`src/server.ts`)
@@ -205,18 +205,18 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - `registerController` for `HomeController`, `CheckoutController`, `SuccessController`, `WebhookController` (relying on StreetJS default 404 for unmatched paths); call `initSchema()`; then `await app.listen()`
     - _Requirements: 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.1, 2.2, 2.3, 2.4, 2.5_
 
-  - [ ] 8.2 Write property test for unmatched-route 404s
+  - [-] 8.2 Write property test for unmatched-route 404s
     - **Property 4: Unmatched routes return 404**
     - **Validates: Requirements 2.6**
     - Generators: random method+path pairs excluded from the four registered routes (`GET /`, `POST /checkout`, `GET /success`, `POST /webhooks/marzpay`); assert HTTP 404 against the real app
     - Tag: `// Feature: streetjs-marzpay-demo, Property 4: ...`, minimum 100 runs
 
-  - [ ] 8.3 Write unit tests for controller registration, resolved environment, and install failure
+  - [-] 8.3 Write unit tests for controller registration, resolved environment, and install failure
     - Assert exactly the four controllers are registered; assert the resolved MarzPay environment (`sandbox` unless `production` selected) is passed to `MarzPayPlugin`; assert an induced plugin install failure aborts startup with the install-failed message before binding a port
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
 - [ ] 9. Real-sandbox integration tests (no mocks)
-  - [ ] 9.1 Write live sandbox integration tests
+  - [-] 9.1 Write live sandbox integration tests
     - Install the plugin with real sandbox credentials and confirm the MarzPay client is exposed at `ctx.state.marzpay`; drive the live mobile-money path `collectMoney` → `getStatus`/`transactions.get` against `MarzPay_Sandbox`; confirm the port binds only after valid configuration and a successful install (1–3 representative cases, no mocks)
     - _Requirements: 1.9, 2.2, 2.3, 2.4, 4.4, 5.6, 6.2_
 
