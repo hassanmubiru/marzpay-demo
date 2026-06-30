@@ -21,25 +21,25 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - List `MARZPAY_API_KEY`, `MARZPAY_SECRET_KEY`, `MARZPAY_ENVIRONMENT`, `APP_URL`, and `PORT` with placeholder values and brief inline comments (noting `MARZPAY_ENVIRONMENT` is optional and defaults to `sandbox`)
     - _Requirements: 1.3_
 
-- [ ] 2. Implement pure configuration validation (`src/config.ts`)
+- [x] 2. Implement pure configuration validation (`src/config.ts`)
   - [x] 2.1 Implement `validateConfig`
     - Define `MarzPayEnvironment`, `AppConfig`, and `ConfigResult` types per the design
     - Implement a pure `validateConfig(env)` (no `process.exit`, no I/O) that: treats `MARZPAY_API_KEY`, `MARZPAY_SECRET_KEY`, `APP_URL`, `PORT` as required (absent or empty string ⇒ offending); parses `PORT` to an integer in `[1, 65535]`; resolves `MARZPAY_ENVIRONMENT` (absent/empty ⇒ `sandbox`; `sandbox`/`production` accepted; any other non-empty value ⇒ offending); and returns `ok: false` with an `errors` array naming **every** offending variable (and none that are valid), else `ok: true` with the resolved `AppConfig`
     - _Requirements: 1.4, 1.5, 1.6, 1.7, 1.8, 1.9_
 
-  - [-] 2.2 Write property test for required-variable completeness
+  - [x] 2.2 Write property test for required-variable completeness
     - **Property 1: Configuration requires all mandatory variables**
     - **Validates: Requirements 1.4, 1.5**
     - Generators: env records that drop/blank random subsets of the four required keys; assert `ok: false` and that `errors` names exactly the offending variables and no valid ones
     - Tag: `// Feature: streetjs-marzpay-demo, Property 1: ...`, minimum 100 runs
 
-  - [-] 2.3 Write property test for PORT range validation
+  - [x] 2.3 Write property test for PORT range validation
     - **Property 2: PORT must be an integer in [1, 65535]**
     - **Validates: Requirements 1.6, 1.9**
     - Generators: non-numeric, fractional, zero, negative, and out-of-range `PORT` strings (expect error naming `PORT`), and otherwise-valid envs with integer ports in `[1, 65535]` (expect `config.port` to equal that integer)
     - Tag: `// Feature: streetjs-marzpay-demo, Property 2: ...`, minimum 100 runs
 
-  - [-] 2.4 Write property test for MARZPAY_ENVIRONMENT enum and default
+  - [x] 2.4 Write property test for MARZPAY_ENVIRONMENT enum and default
     - **Property 3: MARZPAY_ENVIRONMENT enum and default resolution**
     - **Validates: Requirements 1.7, 1.8**
     - Generators: absent/empty (⇒ resolves to `sandbox`), exactly `sandbox`/`production` (⇒ resolves to the input), and arbitrary other non-empty strings (⇒ `ok: false` naming `MARZPAY_ENVIRONMENT`)
@@ -52,7 +52,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Allow the database handle to be configurable (file path or in-memory/temp) so tests can use an in-memory DB
     - _Requirements: 6.1_
 
-  - [-] 3.2 Implement `insertPending`, `markCompleted`, and `findByReference`
+  - [x] 3.2 Implement `insertPending`, `markCompleted`, and `findByReference`
     - `insertPending(payment)`: insert a pending record keyed by reference using `INSERT ... ON CONFLICT(reference) DO NOTHING` inside a transaction; idempotent (existing row left intact, no duplicate); return `{ ok: false, error }` on write failure with no partial row
     - `markCompleted(reference, { amount, currency, status })`: conditional `UPDATE` inside a transaction; idempotent by reference; leaves no partial row on failure
     - `findByReference(reference)`: return `{ found: true, payment }` or `{ found: false }`
@@ -82,7 +82,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: references guaranteed absent from the store; assert `findByReference` returns a not-found result
     - Tag: `// Feature: streetjs-marzpay-demo, Property 15: ...`, minimum 100 runs
 
-- [ ] 4. Implement pure MarzPay helpers (`src/services/marzpay-helpers.ts`)
+- [x] 4. Implement pure MarzPay helpers (`src/services/marzpay-helpers.ts`)
   - [x] 4.1 Implement `generateReference`, `isValidPhone`, `isCompletedStatus`, `parseWebhookReference`
     - `generateReference()`: return `crypto.randomUUID()`
     - `isValidPhone(client, phone)`: treat absent/empty as invalid, otherwise delegate to `client.isValidPhoneNumber(phone)`
@@ -90,13 +90,13 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - `parseWebhookReference(rawBody)`: return `{ ok: true, reference }` or `{ ok: false, reason: "unparseable" | "missing_reference" }`; no network, no framework
     - _Requirements: 4.3, 5.3, 5.5, 5.6, 7.2_
 
-  - [-] 4.2 Write property test for unique reference generation
+  - [x] 4.2 Write property test for unique reference generation
     - **Property 5: Generated references are unique**
     - **Validates: Requirements 4.3**
     - Generators: large N `generateReference()` calls; assert all generated references are distinct
     - Tag: `// Feature: streetjs-marzpay-demo, Property 5: ...`, minimum 100 runs
 
-  - [ ] 4.3 Write unit tests for helper parsing and status interpretation
+  - [x] 4.3 Write unit tests for helper parsing and status interpretation
     - Test `parseWebhookReference` for valid JSON with a reference, non-JSON bodies (`unparseable`), and JSON missing a reference (`missing_reference`); test `isCompletedStatus` for completed vs non-completed status values; test `isValidPhone` treats absent/empty as invalid and delegates otherwise
     - _Requirements: 5.3, 5.5, 7.2_
 
@@ -108,7 +108,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 7.1, 7.2, 7.3_
 
 - [ ] 6. Implement controllers
-  - [ ] 6.1 Implement `HomeController` (`src/controllers/home.controller.ts`)
+  - [-] 6.1 Implement `HomeController` (`src/controllers/home.controller.ts`)
     - `@Controller('/')` with `@Get`; render `views/home.html`; return 200 on success and 500 with a "could not be loaded" message if rendering throws
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
@@ -116,7 +116,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Assert 200 with exact title "StreetJS + MarzPay Demo", exactly one phone-number input, exactly one enabled "Pay 5000 UGX" button posting to `/checkout`, and 500 on an induced render failure
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [ ] 6.3 Implement `CheckoutController` (`src/controllers/checkout.controller.ts`)
+  - [-] 6.3 Implement `CheckoutController` (`src/controllers/checkout.controller.ts`)
     - `@Controller('/checkout')` with `@Post`; read the submitted phone number; if absent/empty or `marzpay.utils.isValidPhoneNumber` reports invalid → HTTP 400 "a valid phone number is required" and do **not** call `collectMoney`
     - Generate a unique reference via `generateReference()`; call `marzpay.collections.collectMoney({ amount: 5000, country: 'UG', reference, phone_number })` against the sandbox
     - On success → `insertPending` a record (amount 5000, currency `UGX`, status `pending`) and redirect to `/success?reference=<ref>`; on error or timeout → HTTP 502 "payment initiation failed" with no `Payment_Record` persisted
