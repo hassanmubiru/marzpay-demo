@@ -232,7 +232,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Describe the end-to-end mobile-money flow as an ordered sequence (enter phone + "Pay" → checkout collection against the sandbox → approve prompt on phone → webhook → validate + authoritative `getStatus` confirmation → persist → success page); state the reachable URL in terms of `APP_URL` and `PORT`; document how to obtain the MarzPay sandbox credentials and their source; note the webhook-signature-scheme plugin limitation and that completion is authoritatively confirmed via `collections.getStatus` and `transactions.get`
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [ ] 11.2 Write README content checks
+  - [-] 11.2 Write README content checks
     - Assert the ordered setup steps with literal commands (including `npm install streetjs @streetjs/plugin-marzpay` and the `street add marzpay` note), per-variable documentation, the ordered end-to-end flow, the credential acquisition source, the reachable URL expressed via `APP_URL` and `PORT`, and the webhook-signature-limitation note
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
