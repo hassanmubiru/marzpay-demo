@@ -278,18 +278,77 @@ export async function main(): Promise<void> {
   );
 }
 
-// Auto-run when executed directly (e.g. `node dist/server.js`) or when running
-// on Vercel's Node runtime (which loads this entrypoint and expects it to start
-// a server listening on process.env.PORT). `process.argv[1]` is the invoked
-// script path for a direct `node` run.
+// Auto-run when executed directly (e.g. `node dist/server.js`) for the
+// long-running local/server deployment. NOT on Vercel — there the platform
+// imports this module and invokes the default export per request (see below),
+// so we must not also start a listening server.
 const invokedPath = process.argv[1];
 const isDirectRun =
   invokedPath !== undefined &&
   import.meta.url === new URL(`file://${invokedPath}`).href;
 
-if (isDirectRun || process.env.VERCEL) {
+if (isDirectRun) {
   main().catch((err) => {
     console.error(`Fatal startup error: ${errorMessage(err)}`);
     process.exit(1);
   });
+}
+
+/* -------------------------------------------------------------------------- */
+/* Serverless entry point (Vercel `node` framework)                           */
+/* -------------------------------------------------------------------------- */
+//
+// Vercel detects this file as the root entrypoint and requires a DEFAULT EXPORT
+// that is a request handler (or HTTP server) — it does not use `app.listen()`.
+// So we lazily assemble the StreetJS app once per cold start and route every
+// request through the framework's in-process handler. Startup failures are
+// converted into a readable 500 instead of a process.exit crash.
+
+let serverlessAppPromise: Promise<StreetApp> | null = null;
+
+async function getServerlessApp(): Promise<StreetApp> {
+  if (!serverlessAppPromise) {
+    const startupErrors: string[] = [];
+    serverlessAppPromise = assembleApp({
+      printError: (m: string) => startupErrors.push(m),
+      log: () => undefined,
+      exit: (code: number) => {
+        throw new Error(
+          `Startup aborted (exit ${code}): ${
+            startupErrors.join("; ") || "configuration/plugin error"
+          }`,
+        );
+      },
+    }).then((result) => {
+      if (!result) {
+        throw new Error(
+          `App assembly aborted: ${startupErrors.join("; ") || "unknown error"}`,
+        );
+      }
+      return result.app;
+    });
+    // Don't cache a rejected promise — let the next request retry.
+    serverlessAppPromise.catch(() => {
+      serverlessAppPromise = null;
+    });
+  }
+  return serverlessAppPromise;
+}
+
+/** Default export: the serverless request handler used by Vercel. */
+export default async function handler(
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  try {
+    const app = await getServerlessApp();
+    app._handleRequest(req, res);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(
+      JSON.stringify({ error: "server_initialization_failed", message }),
+    );
+  }
 }
