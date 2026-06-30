@@ -112,7 +112,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - `@Controller('/')` with `@Get`; render `views/home.html`; return 200 on success and 500 with a "could not be loaded" message if rendering throws
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [-] 6.2 Write unit test for home page contents
+  - [x] 6.2 Write unit test for home page contents
     - Assert 200 with exact title "StreetJS + MarzPay Demo", exactly one phone-number input, exactly one enabled "Pay 5000 UGX" button posting to `/checkout`, and 500 on an induced render failure
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
@@ -122,19 +122,19 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - On success → `insertPending` a record (amount 5000, currency `UGX`, status `pending`) and redirect to `/success?reference=<ref>`; on error or timeout → HTTP 502 "payment initiation failed" with no `Payment_Record` persisted
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
 
-  - [-] 6.4 Write property test for phone gating
+  - [x] 6.4 Write property test for phone gating
     - **Property 6: Invalid phone numbers are rejected without a collection**
     - **Validates: Requirements 4.1, 4.2**
     - Generators: absent/empty/invalid phone strings (stub `isValidPhoneNumber=false`, spy `collectMoney`); assert HTTP 400, a "valid phone number is required" message, and `collectMoney` never invoked
     - Tag: `// Feature: streetjs-marzpay-demo, Property 6: ...`, minimum 100 runs
 
-  - [-] 6.5 Write property test for valid checkout shaping and pending persistence
+  - [x] 6.5 Write property test for valid checkout shaping and pending persistence
     - **Property 7: Valid checkout shapes the collection and persists a pending record**
     - **Validates: Requirements 4.4, 4.5**
     - Generators: valid phone strings with a successful stubbed `collectMoney`; assert `collectMoney` called with exactly `{ amount: 5000, country: 'UG', phone_number, reference }`, exactly one pending record persisted (amount 5000, currency `UGX`, status `pending`), and redirect to `/success?reference=<ref>`
     - Tag: `// Feature: streetjs-marzpay-demo, Property 7: ...`, minimum 100 runs
 
-  - [-] 6.6 Write property test for collection failure
+  - [x] 6.6 Write property test for collection failure
     - **Property 8: Collection failure yields 502 and persists nothing**
     - **Validates: Requirements 4.6, 4.7**
     - Generators: `collectMoney` invocations that reject with error or timeout-style rejections; assert HTTP 502, a "payment initiation failed" message, and no `Payment_Record` persisted
@@ -146,25 +146,25 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Call authoritative `marzpay.collections.getStatus(reference)`; if `isCompletedStatus` is false → HTTP 200, status unchanged; if true → read `marzpay.transactions.get(reference)` and `markCompleted`, returning HTTP 200; on DB write failure → HTTP 500 "database write failed" with no partial row
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.2, 6.4_
 
-  - [-] 6.8 Write property test for invalid webhooks
+  - [x] 6.8 Write property test for invalid webhooks
     - **Property 9: Invalid webhooks are rejected and change nothing**
     - **Validates: Requirements 5.1, 5.2**
     - Generators: arbitrary raw bodies + signatures with `validateWebhook` stubbed to return false; assert HTTP 401 and every existing `Payment_Record` left unchanged (in-memory DB)
     - Tag: `// Feature: streetjs-marzpay-demo, Property 9: ...`, minimum 100 runs
 
-  - [ ] 6.9 Write property test for validated-but-unusable webhooks
+  - [-] 6.9 Write property test for validated-but-unusable webhooks
     - **Property 10: Validated but unusable webhooks return 400 and change nothing**
     - **Validates: Requirements 5.3**
     - Generators: `validateWebhook=true` with non-JSON bodies or JSON lacking a reference; assert HTTP 400 and every existing `Payment_Record` left unchanged
     - Tag: `// Feature: streetjs-marzpay-demo, Property 10: ...`, minimum 100 runs
 
-  - [ ] 6.10 Write property test for status-driven authoritative completion
+  - [-] 6.10 Write property test for status-driven authoritative completion
     - **Property 11: Webhook completion is status-driven and authoritative**
     - **Validates: Requirements 5.4, 5.5, 5.6**
     - Generators: validated webhooks carrying a reference with completed and non-completed `getStatus` values (stub `getStatus`/`transactions.get`, in-memory DB); assert `getStatus` is called first, that on a completed status the record is recorded completed using `transactions.get` fields with HTTP 200, and that on a non-completed status the response is HTTP 200 with the record's status unchanged
     - Tag: `// Feature: streetjs-marzpay-demo, Property 11: ...`, minimum 100 runs
 
-  - [ ] 6.11 Write unit tests for webhook ordering and DB write-failure path
+  - [-] 6.11 Write unit tests for webhook ordering and DB write-failure path
     - Assert `validateWebhook` is invoked before any parse/persist and `getStatus` is invoked before completion is recorded; assert that an induced `Payment_Store` write failure yields HTTP 500 with a database-write-failed indication and no partial row
     - _Requirements: 5.1, 5.4, 6.4_
 
@@ -173,13 +173,13 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Look up via `findByReference`; not found → HTTP 404 "payment not found" and not "Payment Successful"; found → HTTP 200 rendering `views/success.html` with the stored reference, `"{amount} {currency}"`, and stored status, status-driven ("Payment Successful" only when `isCompletedStatus` is true, otherwise an awaiting-approval message)
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-  - [ ] 6.13 Write property test for success page field rendering
+  - [-] 6.13 Write property test for success page field rendering
     - **Property 16: Success page always renders the stored record's fields**
     - **Validates: Requirements 7.1**
     - Generators: arbitrary stored records; assert HTTP 200 and that the stored reference, `"{amount} {currency}"` formatting (amount, single space, currency code), and stored status are rendered
     - Tag: `// Feature: streetjs-marzpay-demo, Property 16: ...`, minimum 100 runs
 
-  - [ ] 6.14 Write property test for status-driven success rendering
+  - [-] 6.14 Write property test for status-driven success rendering
     - **Property 17: Success page rendering is status-driven**
     - **Validates: Requirements 7.2, 7.3**
     - Generators: stored records with completed and `pending` statuses; assert "Payment Successful" appears iff `isCompletedStatus(status)` is true, and that a `pending` record shows an awaiting-approval message and not "Payment Successful"
