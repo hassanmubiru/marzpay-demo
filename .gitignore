@@ -5,6 +5,7 @@ node_modules/
 dist/
 web/node_modules/
 web/dist/
+*.tsbuildinfo
 
 # Vercel
 .vercel/
