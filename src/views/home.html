@@ -4,39 +4,195 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>StreetJS + MarzPay Demo</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
     <!--
       Home_Page (Requirements 3.1, 3.2, 3.3, 3.4).
-      This is a fully static template (no placeholders) rendered as-is by HomeController.
-      Contract enforced here:
+      Static template rendered as-is by HomeController. Contract enforced here:
         - Req 3.1: contains the exact text "StreetJS + MarzPay Demo".
         - Req 3.2: exactly ONE input control for the mobile-money phone number.
         - Req 3.3: exactly ONE enabled button labeled exactly "Pay 5000 UGX".
-        - Req 3.4: the button submits the phone number to /checkout via the form's POST.
+        - Req 3.4: the button submits the phone number to /checkout via POST.
+      Styling is inlined because the demo server does not serve a static asset
+      route; keeping it inline guarantees the page is styled with no extra route.
     -->
+    <style>
+      :root {
+        --bg-1: #0b1220;
+        --bg-2: #111c3a;
+        --card: rgba(255, 255, 255, 0.96);
+        --text: #0f172a;
+        --muted: #5b6b86;
+        --accent: #4f46e5;
+        --accent-2: #2563eb;
+        --accent-hover: #4338ca;
+        --border: #e6eaf2;
+        --ring: rgba(79, 70, 229, 0.35);
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1100px 600px at 12% -10%, #1e3a8a 0%, transparent 55%),
+          radial-gradient(900px 600px at 110% 10%, #6d28d9 0%, transparent 50%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      }
+      .card {
+        width: 100%;
+        max-width: 30rem;
+        background: var(--card);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 1.25rem;
+        padding: 2.25rem;
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.45);
+        backdrop-filter: blur(6px);
+        animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.5rem;
+      }
+      .brand .mark {
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.7rem;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-weight: 800;
+        font-size: 1.1rem;
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.45);
+      }
+      .brand .name { font-weight: 700; letter-spacing: -0.01em; }
+      .brand .name small { display: block; color: var(--muted); font-weight: 500; font-size: 0.78rem; }
+      h1 {
+        margin: 0 0 0.4rem;
+        font-size: 1.6rem;
+        letter-spacing: -0.02em;
+      }
+      .lead { color: var(--muted); line-height: 1.55; margin: 0 0 1.25rem; }
+      .amount-chip {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.35rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(37,99,235,0.12));
+        border: 1px solid rgba(79, 70, 229, 0.25);
+        color: var(--accent-hover);
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+      }
+      .amount-chip .big { font-size: 1.15rem; }
+      .pay-form { display: flex; flex-direction: column; gap: 0.5rem; }
+      .field { font-weight: 600; font-size: 0.88rem; color: #1f2937; }
+      .input-wrap { position: relative; display: flex; align-items: center; }
+      .input-wrap svg {
+        position: absolute;
+        left: 0.85rem;
+        width: 1.15rem;
+        height: 1.15rem;
+        color: var(--muted);
+        pointer-events: none;
+      }
+      input[type="tel"] {
+        width: 100%;
+        padding: 0.85rem 0.9rem 0.85rem 2.6rem;
+        font-size: 1rem;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 0.7rem;
+        background: #fff;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      input[type="tel"]::placeholder { color: #9aa6bd; }
+      input[type="tel"]:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--ring);
+      }
+      button {
+        margin-top: 0.85rem;
+        padding: 0.95rem 1rem;
+        font-size: 1.02rem;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border: none;
+        border-radius: 0.7rem;
+        cursor: pointer;
+        transition: transform 0.08s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.35);
+      }
+      button:hover { filter: brightness(1.05); box-shadow: 0 16px 30px rgba(37, 99, 235, 0.45); }
+      button:active { transform: translateY(1px) scale(0.995); }
+      button:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--ring); }
+      .foot {
+        margin-top: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .foot .dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+    </style>
+  </head>
+  <body>
     <main class="card">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">S</div>
+        <div class="name">StreetJS &times; MarzPay<small>Mobile-money checkout demo</small></div>
+      </div>
+
       <h1>StreetJS + MarzPay Demo</h1>
       <p class="lead">
-        Enter your mobile-money phone number and pay to start a real
-        MarzPay sandbox collection in Uganda (UGX).
+        Enter your mobile-money phone number to start a real MarzPay
+        <strong>sandbox</strong> collection in Uganda.
       </p>
+
+      <div class="amount-chip" aria-hidden="true">
+        <span>Pay</span><span class="big">5,000</span><span>UGX</span>
+      </div>
 
       <form class="pay-form" method="POST" action="/checkout">
         <label class="field" for="phone_number">Mobile-money phone number</label>
-        <input
-          id="phone_number"
-          name="phone_number"
-          type="tel"
-          inputmode="tel"
-          autocomplete="tel"
-          placeholder="e.g. +256700000000"
-          required
-        />
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="6" y="2" width="12" height="20" rx="3"></rect>
+            <line x1="11" y1="18" x2="13" y2="18"></line>
+          </svg>
+          <input
+            id="phone_number"
+            name="phone_number"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            placeholder="e.g. +256700000000"
+            required
+          />
+        </div>
 
         <button type="submit">Pay 5000 UGX</button>
       </form>
+
+      <div class="foot">
+        <span class="dot" aria-hidden="true"></span>
+        Secured sandbox payment &middot; no real funds are moved
+      </div>
     </main>
   </body>
 </html>
