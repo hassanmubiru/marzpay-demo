@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "tsc && node dist/server.js",
     "build": "tsc",
+    "build:web": "cd web && npm install && npm run build",
+    "vercel-build": "npm run build && npm run build:web",
     "test": "vitest --run"
   },
   "dependencies": {
