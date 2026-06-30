@@ -221,12 +221,12 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - _Requirements: 1.9, 2.2, 2.3, 2.4, 4.4, 5.6, 6.2_
 
 - [ ] 10. Smoke and configuration tests
-  - [ ] 10.1 Write smoke/config tests for project artifacts
+  - [-] 10.1 Write smoke/config tests for project artifacts
     - Assert `package.json` declares `streetjs`, `@streetjs/plugin-marzpay`, and `reflect-metadata`, sets `"type": "module"`, declares a Node `>=20` engine, and has a `dev` script that builds and starts the server; assert `tsconfig.json` enables `experimentalDecorators`, `emitDecoratorMetadata`, and `NodeNext`; assert `.env.example` lists the five variables; assert the `payments` schema has the six columns with `reference` NOT NULL UNIQUE; assert README content is present
     - _Requirements: 1.1, 1.2, 1.3, 1.10, 6.1_
 
 - [ ] 11. Write README documentation
-  - [-] 11.1 Create `README.md`
+  - [x] 11.1 Create `README.md`
     - Document setup as an ordered numbered sequence with literal commands in this exact order: clone the repo, change into the directory, install with `npm install streetjs @streetjs/plugin-marzpay` (noting the `street add marzpay` alternative), copy `.env.example` to `.env`, add sandbox keys, run `npm run dev`
     - Document each environment variable (`MARZPAY_API_KEY`, `MARZPAY_SECRET_KEY`, `MARZPAY_ENVIRONMENT`, `APP_URL`, `PORT`) with name, one-line purpose, and whether mandatory at startup (noting `MARZPAY_ENVIRONMENT` is optional and defaults to `sandbox`)
     - Describe the end-to-end mobile-money flow as an ordered sequence (enter phone + "Pay" → checkout collection against the sandbox → approve prompt on phone → webhook → validate + authoritative `getStatus` confirmation → persist → success page); state the reachable URL in terms of `APP_URL` and `PORT`; document how to obtain the MarzPay sandbox credentials and their source; note the webhook-signature-scheme plugin limitation and that completion is authoritatively confirmed via `collections.getStatus` and `transactions.get`
