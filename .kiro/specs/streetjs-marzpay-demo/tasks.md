@@ -134,7 +134,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: valid phone strings with a successful stubbed `collectMoney`; assert `collectMoney` called with exactly `{ amount: 5000, country: 'UG', phone_number, reference }`, exactly one pending record persisted (amount 5000, currency `UGX`, status `pending`), and redirect to `/success?reference=<ref>`
     - Tag: `// Feature: streetjs-marzpay-demo, Property 7: ...`, minimum 100 runs
 
-  - [ ] 6.6 Write property test for collection failure
+  - [-] 6.6 Write property test for collection failure
     - **Property 8: Collection failure yields 502 and persists nothing**
     - **Validates: Requirements 4.6, 4.7**
     - Generators: `collectMoney` invocations that reject with error or timeout-style rejections; assert HTTP 502, a "payment initiation failed" message, and no `Payment_Record` persisted
@@ -146,7 +146,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Call authoritative `marzpay.collections.getStatus(reference)`; if `isCompletedStatus` is false → HTTP 200, status unchanged; if true → read `marzpay.transactions.get(reference)` and `markCompleted`, returning HTTP 200; on DB write failure → HTTP 500 "database write failed" with no partial row
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.2, 6.4_
 
-  - [ ] 6.8 Write property test for invalid webhooks
+  - [-] 6.8 Write property test for invalid webhooks
     - **Property 9: Invalid webhooks are rejected and change nothing**
     - **Validates: Requirements 5.1, 5.2**
     - Generators: arbitrary raw bodies + signatures with `validateWebhook` stubbed to return false; assert HTTP 401 and every existing `Payment_Record` left unchanged (in-memory DB)
