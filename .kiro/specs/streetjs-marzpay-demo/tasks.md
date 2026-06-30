@@ -185,7 +185,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: stored records with completed and `pending` statuses; assert "Payment Successful" appears iff `isCompletedStatus(status)` is true, and that a `pending` record shows an awaiting-approval message and not "Payment Successful"
     - Tag: `// Feature: streetjs-marzpay-demo, Property 17: ...`, minimum 100 runs
 
-  - [ ] 6.15 Write property test for success page unknown-reference handling
+  - [-] 6.15 Write property test for success page unknown-reference handling
     - **Property 18: Success page reports unknown references as not found**
     - **Validates: Requirements 7.4**
     - Generators: references guaranteed absent; assert HTTP 404, a "payment not found" message, and no "Payment Successful" text
