@@ -130,7 +130,17 @@ export class ApiCheckoutController {
 export class ApiPaymentsController {
   /**
    * GET /api/payments/:reference — look up a stored payment by reference.
-   * Returns the record (with a derived `completed` flag) or 404.
+   *
+   * If the stored record is still `pending`, this AUTHORITATIVELY reconciles it
+   * with MarzPay by calling `collections.getStatus(reference)` directly (the
+   * same authoritative check the webhook uses). This means the SPA's polling
+   * flips to completed even when the inbound webhook never arrives or is
+   * rejected by the best-effort signature gate. On a completed status it reads
+   * `transactions.get(reference)` for the confirmed amount/currency and persists
+   * completion before responding.
+   *
+   * Returns the (possibly reconciled) record with a derived `completed` flag,
+   * or 404 when no record exists.
    */
   @Get("/:reference")
   async get(ctx: StreetContext): Promise<void> {
@@ -146,7 +156,34 @@ export class ApiPaymentsController {
       return;
     }
 
-    const { payment } = lookup;
+    let payment = lookup.payment;
+
+    // Reconcile a still-pending payment with the authoritative MarzPay status,
+    // so completion does not depend solely on webhook delivery.
+    const marzpay = ctx.state["marzpay"] as MarzPayClient | undefined;
+    if (marzpay !== undefined && !isCompletedStatus(payment.status)) {
+      try {
+        const status = await marzpay.collections.getStatus(reference);
+        if (isCompletedStatus(status.status)) {
+          const txn = await marzpay.transactions.get(reference);
+          const write = await markCompleted(reference, {
+            amount: txn.amount,
+            currency: txn.currency,
+            status: txn.status,
+          });
+          if (write.ok) {
+            const refreshed = await findByReference(reference);
+            if (refreshed.found) {
+              payment = refreshed.payment;
+            }
+          }
+        }
+      } catch {
+        // Best-effort reconciliation: on any MarzPay/store error, fall back to
+        // returning the currently stored (pending) record.
+      }
+    }
+
     const dto: PaymentDto = {
       reference: payment.reference,
       amount: payment.amount,
