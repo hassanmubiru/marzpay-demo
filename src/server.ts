@@ -26,6 +26,7 @@
 
 import "reflect-metadata";
 
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
