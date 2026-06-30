@@ -26,6 +26,8 @@
 
 import "reflect-metadata";
 
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { config as loadDotenv } from "dotenv";
@@ -34,10 +36,11 @@ import type { Constructor, StreetApp, StreetAppOptions } from "streetjs";
 import type { PluginModule } from "streetjs";
 import { MarzPayPlugin } from "@streetjs/plugin-marzpay";
 import type { MarzPayPluginConfig } from "@streetjs/plugin-marzpay";
+import { SupabasePlugin } from "@streetjs/plugin-supabase";
 
 import { validateConfig } from "./config.js";
 import type { AppConfig } from "./config.js";
-import { initSchema as initPaymentsSchema } from "./db/payments.js";
+import { initSchema as initPaymentsSchema, usingSupabase } from "./db/store.js";
 import { HomeController } from "./controllers/home.controller.js";
 import { CheckoutController } from "./controllers/checkout.controller.js";
 import { SuccessController } from "./controllers/success.controller.js";
@@ -197,11 +200,17 @@ function errorMessage(err: unknown): string {
   return String(err);
 }
 
-/** Real entry point: bootstrap with the production dependencies. */
-export async function main(): Promise<void> {
-  // Register the four core controllers PLUS the JSON API controllers the SPA
-  // consumes. The default CONTROLLERS list (the tested four) is left unchanged;
-  // the API controllers are added only here in the real entry point.
+/**
+ * Assemble the full application the production server and the serverless
+ * (Vercel) adapter both use: the four core controllers PLUS the JSON API
+ * controllers, the optional Supabase plugin (when configured), and the SPA
+ * static middleware. Does NOT bind a port — callers decide whether to
+ * `app.listen()` (long-running server) or hand `_handleRequest` to a
+ * serverless platform.
+ *
+ * Returns `undefined` if startup was aborted (invalid config / failed install).
+ */
+export async function assembleApp(): Promise<BootstrapResult | undefined> {
   const result = await bootstrap({
     controllers: [
       ...CONTROLLERS,
@@ -211,15 +220,41 @@ export async function main(): Promise<void> {
     listen: false,
   });
   if (!result) {
-    return; // startup aborted; bootstrap already exited non-zero.
+    return undefined;
   }
 
-  const { app, config } = result;
+  const { app } = result;
+
+  // Load the Supabase plugin when connection settings are present, exposing the
+  // Supabase client at ctx.state.supabase (the durable store also uses it).
+  if (usingSupabase) {
+    const url = process.env.SUPABASE_URL as string;
+    const apiKey = (process.env.SUPABASE_KEY ??
+      process.env.SUPABASE_SERVICE_ROLE_KEY) as string;
+    try {
+      await app.loadPlugin(
+        new SupabasePlugin({ url, apiKey, stateKey: "supabase" }),
+      );
+    } catch (err) {
+      console.error(`Supabase plugin installation failed: ${errorMessage(err)}`);
+    }
+  }
 
   // Serve the built React SPA under /app (StreetJS core has no static serving).
   const spaRoot = fileURLToPath(new URL("../web/dist", import.meta.url));
   app.use(createSpaMiddleware({ root: spaRoot, mountPath: "/app" }));
 
+  return result;
+}
+
+/** Real entry point: assemble the app and bind the port (long-running server). */
+export async function main(): Promise<void> {
+  const result = await assembleApp();
+  if (!result) {
+    return; // startup aborted; bootstrap already exited non-zero.
+  }
+
+  const { app, config } = result;
   await app.listen();
   console.log(
     `StreetJS + MarzPay demo listening on http://${DEFAULT_HOST}:${config.port}` +
@@ -227,6 +262,9 @@ export async function main(): Promise<void> {
   );
   console.log(`  - Server-rendered UI:  http://localhost:${config.port}/`);
   console.log(`  - React SPA (SDK):     http://localhost:${config.port}/app`);
+  console.log(
+    `  - Persistence:         ${usingSupabase ? "Supabase (append-only)" : "built-in SQLite"}`,
+  );
 }
 
 // Auto-run when executed directly (e.g. `node dist/server.js`), but not when
