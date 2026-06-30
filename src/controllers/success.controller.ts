@@ -115,13 +115,38 @@ function errorPage(title: string, message: string): string {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${safeTitle} &middot; StreetJS + MarzPay Demo</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0; min-height: 100vh; display: flex; align-items: center;
+        justify-content: center; padding: 1.5rem; color: #0f172a;
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background:
+          radial-gradient(1100px 600px at 12% -10%, #1e3a8a 0%, transparent 55%),
+          radial-gradient(900px 600px at 110% 10%, #6d28d9 0%, transparent 50%),
+          linear-gradient(160deg, #0b1220, #111c3a);
+      }
+      .card {
+        width: 100%; max-width: 30rem; background: rgba(255,255,255,0.96);
+        border: 1px solid rgba(255,255,255,0.6); border-radius: 1.25rem;
+        padding: 2.25rem; box-shadow: 0 24px 60px rgba(2,6,23,0.45);
+      }
+      h1 { margin: 0 0 1rem; font-size: 1.5rem; letter-spacing: -0.02em; }
+      .status-message {
+        font-size: 1.02rem; font-weight: 600; line-height: 1.5; margin: 0 0 1.5rem;
+        padding: 0.9rem 1rem; border-radius: 0.75rem; background: #fef2f2;
+        border: 1px solid #fecaca; color: #991b1b;
+      }
+      .back-link { color: #4f46e5; font-weight: 600; text-decoration: none; }
+      .back-link:hover { text-decoration: underline; }
+    </style>
   </head>
   <body>
     <main class="card">
       <h1>${safeTitle}</h1>
       <p class="status-message">${safeMessage}</p>
-      <p><a class="back-link" href="/">Start another payment</a></p>
+      <p><a class="back-link" href="/">&larr; Start another payment</a></p>
     </main>
   </body>
 </html>`;
