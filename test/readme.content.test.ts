@@ -114,7 +114,7 @@ describe("README content (Task 11.2)", () => {
       "webhook to the Webhook handler", // MarzPay sends a webhook
       "getStatus(reference)", // validate + authoritative confirmation
       "SQLite", // persist confirmed payment to the store
-      "success page", // success page displays the payment
+      "displays the stored payment", // success page displays the payment
     ]);
   });
 
