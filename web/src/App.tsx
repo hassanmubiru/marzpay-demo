@@ -120,7 +120,7 @@ export function App() {
         </div>
         <div className="name">
           StreetJS &times; MarzPay
-          <small>React SPA &middot; @streetjs/client</small>
+          <small>Mobile-money checkout</small>
         </div>
       </div>
 
