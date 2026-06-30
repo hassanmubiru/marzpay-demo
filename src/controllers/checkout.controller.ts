@@ -223,13 +223,13 @@ function renderMessage(message: string): string {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>StreetJS + MarzPay Demo</title>
-    <link rel="stylesheet" href="/styles.css" />
+    ${INLINE_PAGE_STYLE}
   </head>
   <body>
     <main class="card">
       <h1>StreetJS + MarzPay Demo</h1>
-      <p class="status-message">${safe}</p>
-      <p><a class="back-link" href="/">Back to start</a></p>
+      <p class="status-message error">${safe}</p>
+      <p><a class="back-link" href="/">&larr; Back to start</a></p>
     </main>
   </body>
 </html>`;
