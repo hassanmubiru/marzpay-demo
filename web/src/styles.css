@@ -76,6 +76,48 @@ h1 { margin: 0 0 0.4rem; font-size: 1.6rem; letter-spacing: -0.02em; }
 
 .pay-form { display: flex; flex-direction: column; gap: 0.5rem; }
 .field { font-weight: 600; font-size: 0.88rem; color: #1f2937; }
+
+.amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.chip {
+  margin: 0;
+  padding: 0.55rem 0.4rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #334155;
+  background: #f1f5fb;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.chip:hover { filter: none; background: #e9eef7; box-shadow: none; }
+.chip-active {
+  background: linear-gradient(135deg, rgba(79,70,229,0.14), rgba(37,99,235,0.14));
+  border-color: var(--accent);
+  color: #4338ca;
+}
+input[type="number"] {
+  width: 100%;
+  padding: 0.85rem 0.9rem;
+  font-size: 1rem;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--ring);
+}
+.hint { margin: 0.1rem 0 0.4rem; color: var(--muted); font-size: 0.78rem; }
 .input-wrap { position: relative; display: flex; align-items: center; }
 .input-wrap svg {
   position: absolute; left: 0.85rem; width: 1.15rem; height: 1.15rem;

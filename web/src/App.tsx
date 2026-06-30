@@ -10,10 +10,19 @@ interface PaymentDto {
   completed: boolean;
 }
 
-// The checkout resource accepts a phone number on create and returns the
-// created payment, so its entity type extends PaymentDto with the input field.
+// The checkout resource accepts a phone number + amount on create and returns
+// the created payment, so its entity type extends PaymentDto with input fields.
 interface CheckoutEntity extends PaymentDto {
   phone_number: string;
+}
+
+const MIN_AMOUNT = 500;
+const MAX_AMOUNT = 1_000_000;
+const QUICK_AMOUNTS = [500, 5000, 20000, 50000, 100000, 500000];
+
+/** Format a number with thousands separators (e.g. 50000 → "50,000"). */
+function formatAmount(n: number): string {
+  return n.toLocaleString("en-US");
 }
 
 type Phase = "idle" | "submitting" | "tracking";
@@ -36,6 +45,7 @@ export function App() {
   const api = useStreetClient();
 
   const [phone, setPhone] = useState("");
+  const [amount, setAmount] = useState<number>(5000);
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [payment, setPayment] = useState<PaymentDto | null>(null);
@@ -72,11 +82,17 @@ export function App() {
     async (e: React.FormEvent) => {
       e.preventDefault();
       setError(null);
+      if (!Number.isInteger(amount) || amount < MIN_AMOUNT || amount > MAX_AMOUNT) {
+        setError(
+          `Amount must be a whole number between ${formatAmount(MIN_AMOUNT)} and ${formatAmount(MAX_AMOUNT)} UGX.`,
+        );
+        return;
+      }
       setPhase("submitting");
       try {
         const created = await api
           .resource<CheckoutEntity>("checkout")
-          .create({ phone_number: phone });
+          .create({ phone_number: phone, amount });
         setPayment(created);
         setPhase("tracking");
       } catch (err) {
@@ -84,7 +100,7 @@ export function App() {
         setPhase("idle");
       }
     },
-    [api, phone],
+    [api, phone, amount],
   );
 
   const reset = useCallback(() => {
@@ -92,6 +108,7 @@ export function App() {
     setPayment(null);
     setError(null);
     setPhone("");
+    setAmount(5000);
     setPhase("idle");
   }, [stopPolling]);
 
@@ -111,19 +128,43 @@ export function App() {
         <>
           <h1>Mobile-money checkout</h1>
           <p className="lead">
-            Enter your mobile-money phone number to start a real MarzPay{" "}
-            <strong>sandbox</strong> collection in Uganda.
+            Choose an amount and enter your mobile-money number to start a real
+            MarzPay <strong>sandbox</strong> collection.
           </p>
 
-          <div className="amount-chip">
-            <span>Pay</span>
-            <span className="big">5,000</span>
-            <span>UGX</span>
-          </div>
-
           <form className="pay-form" onSubmit={submit}>
+            <label className="field" htmlFor="amount">
+              Amount (UGX)
+            </label>
+            <div className="amount-grid">
+              {QUICK_AMOUNTS.map((a) => (
+                <button
+                  type="button"
+                  key={a}
+                  className={`chip ${amount === a ? "chip-active" : ""}`}
+                  onClick={() => setAmount(a)}
+                >
+                  {formatAmount(a)}
+                </button>
+              ))}
+            </div>
+            <input
+              id="amount"
+              type="number"
+              inputMode="numeric"
+              min={MIN_AMOUNT}
+              max={MAX_AMOUNT}
+              step={500}
+              value={amount}
+              onChange={(e) => setAmount(Math.trunc(Number(e.target.value)))}
+              required
+            />
+            <p className="hint">
+              Between {formatAmount(MIN_AMOUNT)} and {formatAmount(MAX_AMOUNT)} UGX.
+            </p>
+
             <label className="field" htmlFor="phone">
-              Mobile-money phone number
+              Phone number (local or international)
             </label>
             <div className="input-wrap">
               <svg
@@ -143,17 +184,23 @@ export function App() {
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                placeholder="e.g. +256700000000"
+                placeholder="0700000000 or +256700000000"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
               />
             </div>
+            <p className="hint">
+              Local (e.g. 0700000000) and international (e.g. +256700000000)
+              formats are accepted.
+            </p>
 
             {error && <p className="alert">{error}</p>}
 
             <button type="submit" disabled={phase === "submitting"}>
-              {phase === "submitting" ? "Starting…" : "Pay 5000 UGX"}
+              {phase === "submitting"
+                ? "Starting…"
+                : `Pay ${formatAmount(amount)} UGX`}
             </button>
           </form>
 
