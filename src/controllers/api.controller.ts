@@ -15,13 +15,13 @@ import { Controller, Get, Post } from "streetjs";
 import { insertPending, findByReference } from "../db/store.js";
 import {
   generateReference,
-  isValidPhone,
+  acceptablePhone,
+  parseAmount,
   isCompletedStatus,
 } from "../services/marzpay-helpers.js";
 import type { MarzPayClient } from "../services/marzpay-types.js";
 
-/** Fixed collection parameters for this demo (UGX 5000 mobile money, Uganda). */
-const PAYMENT_AMOUNT = 5000;
+/** Fixed collection parameters for this demo (UGX mobile money, Uganda). */
 const PAYMENT_CURRENCY = "UGX";
 const PAYMENT_COUNTRY = "UG";
 const PENDING_STATUS = "pending";
