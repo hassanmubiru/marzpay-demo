@@ -6,6 +6,9 @@ dist/
 web/node_modules/
 web/dist/
 
+# Vercel
+.vercel/
+
 # Environment files (contain secrets — never commit)
 .env
 .env.local
