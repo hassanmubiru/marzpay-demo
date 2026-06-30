@@ -277,14 +277,16 @@ export async function main(): Promise<void> {
   );
 }
 
-// Auto-run when executed directly (e.g. `node dist/server.js`), but not when
-// imported by a test. `process.argv[1]` is the invoked script path.
+// Auto-run when executed directly (e.g. `node dist/server.js`) or when running
+// on Vercel's Node runtime (which loads this entrypoint and expects it to start
+// a server listening on process.env.PORT). `process.argv[1]` is the invoked
+// script path for a direct `node` run.
 const invokedPath = process.argv[1];
 const isDirectRun =
   invokedPath !== undefined &&
   import.meta.url === new URL(`file://${invokedPath}`).href;
 
-if (isDirectRun) {
+if (isDirectRun || process.env.VERCEL) {
   main().catch((err) => {
     console.error(`Fatal startup error: ${errorMessage(err)}`);
     process.exit(1);
