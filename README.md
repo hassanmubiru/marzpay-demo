@@ -1,83 +1,142 @@
 # StreetJS + MarzPay Demo
 
-A minimal, end-to-end demonstration that proves the [StreetJS](https://www.npmjs.com/package/streetjs) web framework integrates correctly with the official [`@streetjs/plugin-marzpay`](https://www.npmjs.com/package/@streetjs/plugin-marzpay) plugin against the **real MarzPay sandbox**.
+An end-to-end mobile-money payment demo built on the [StreetJS](https://www.npmjs.com/package/streetjs)
+backend framework and the official [`@streetjs/plugin-marzpay`](https://www.npmjs.com/package/@streetjs/plugin-marzpay)
+plugin, running against the **real MarzPay sandbox** (no mocked payment responses).
 
-The demo implements exactly one business flow: a customer enters a mobile-money phone number, clicks "Pay 5000 UGX", approves the prompt on their phone, and the app confirms and persists the completed payment before showing a success page. No fake APIs or mocked payment responses are used — the happy path exercises the genuine MarzPay sandbox over HTTPS.
+It ships **two frontends over one backend** and runs both locally (long-running
+server) and on **Vercel** (serverless), persisting either to StreetJS's built-in
+SQLite (local) or to **Supabase** (production) via
+[`@streetjs/plugin-supabase`](https://www.npmjs.com/package/@streetjs/plugin-supabase).
 
-## Setup
+- **Server-rendered UI** at `/` — the canonical spec demo (fixed 5,000 UGX).
+- **React SPA** at `/app` — built with [`@streetjs/client`](https://www.npmjs.com/package/@streetjs/client)
+  + [`@streetjs/react`](https://www.npmjs.com/package/@streetjs/react); supports a
+  **user-selected amount (500 – 1,000,000 UGX)** and **local or international**
+  phone numbers.
+- **JSON API** at `/api/*` — consumed by the SPA.
 
-Follow these steps in order. Each step shows the literal command to run.
+> **Live demo:** https://streetjs-marzpay.vercel.app (server-rendered) ·
+> https://streetjs-marzpay.vercel.app/app (React SPA)
 
-1. **Clone the repository**
+## Documentation
 
-   ```bash
-   git clone <repository-url>
-   ```
+| Doc | What's inside |
+| --- | --- |
+| [docs/architecture.md](docs/architecture.md) | Components, request lifecycle, persistence backends, deployment topology |
+| [docs/api.md](docs/api.md) | JSON API reference (`/api/checkout`, `/api/payments/:reference`) |
+| [docs/configuration.md](docs/configuration.md) | All environment variables and the SQLite ↔ Supabase switch |
+| [docs/local-development.md](docs/local-development.md) | Running the backend and the SPA dev server locally |
+| [DEPLOY.md](DEPLOY.md) | Deploying to Vercel + Supabase, step by step |
 
-2. **Change into the project directory**
+## Quick start (local)
 
-   ```bash
-   cd marzpay-demo
-   ```
+```bash
+git clone <repository-url>
+cd marzpay-demo
+npm install
+cp .env.example .env          # then add your MarzPay sandbox keys
+npm run dev                   # builds (tsc) and starts the server on PORT
+```
 
-3. **Install dependencies**
+Open **http://localhost:3000** (server-rendered) and **http://localhost:3000/app**
+(React SPA). With no Supabase vars set, the app uses the built-in SQLite store.
 
-   ```bash
-   npm install streetjs @streetjs/plugin-marzpay
-   ```
+To develop the SPA with hot reload (Vite proxies `/api` to the backend on :3000):
 
-   > Alternatively, you can add the MarzPay plugin to a StreetJS project with the StreetJS CLI:
-   >
-   > ```bash
-   > street add marzpay
-   > ```
+```bash
+cd web && npm install && npm run dev   # http://localhost:5173/app
+```
 
-4. **Copy the example environment file**
+See [docs/local-development.md](docs/local-development.md) for details.
 
-   ```bash
-   cp .env.example .env
-   ```
+## Features
 
-5. **Add your sandbox keys to `.env`**
+- Real MarzPay sandbox mobile-money collection (`collections.collectMoney`).
+- Authoritative completion via `collections.getStatus` + `transactions.get`
+  (the webhook signature is best-effort — see [below](#webhook-signature-limitation)).
+- Idempotent persistence keyed by a generated reference.
+- Two persistence backends, chosen at runtime: built-in SQLite (local) and
+  Supabase append-only events (serverless) — see
+  [docs/architecture.md](docs/architecture.md#persistence).
+- Configurable amount (500–1,000,000 UGX) and local/international phone
+  normalization on the SPA + API path.
+- Fast deterministic test suite (unit + property-based) plus live-sandbox
+  integration tests.
 
-   Open `.env` and set `MARZPAY_API_KEY` and `MARZPAY_SECRET_KEY` to your MarzPay sandbox credentials (see [Obtaining sandbox credentials](#obtaining-marzpay-sandbox-credentials)).
+## Configuration (summary)
 
-6. **Run the development server**
+The app validates configuration **before** binding a port; missing/invalid
+required variables abort startup and name every offending variable.
 
-   ```bash
-   npm run dev
-   ```
-
-After `npm run dev` starts, the running app is reachable at the URL given by the `APP_URL` environment variable, which points at the host and `PORT` the server binds to. With the defaults from `.env.example` (`APP_URL=http://localhost:3000` and `PORT=3000`), open **http://localhost:3000** in your browser. If you change `PORT`, set `APP_URL` to the matching `http://localhost:<PORT>` (or your public base URL) so the two stay consistent.
-
-## Environment Variables
-
-The app reads the following variables from the environment at startup (loaded from `.env` in local development). It validates them **before** binding to any port; if a mandatory variable is missing/empty or a value is invalid, startup terminates and names every offending variable.
-
-| Variable | Mandatory at startup | Purpose |
+| Variable | Required | Purpose |
 | --- | --- | --- |
-| `MARZPAY_API_KEY` | Yes | MarzPay sandbox API key, used as `apiKey` when installing the MarzPay plugin. |
-| `MARZPAY_SECRET_KEY` | Yes | MarzPay sandbox secret key, used as `secretKey` when installing the MarzPay plugin. |
-| `MARZPAY_ENVIRONMENT` | No — optional, defaults to `sandbox` | Selects the MarzPay target; must be exactly `sandbox` or `production` when set. When absent or empty it resolves to `sandbox`. |
-| `APP_URL` | Yes | Public base URL of the app, used to build the success-page URL and the address the app is reached at. |
-| `PORT` | Yes | TCP port the server binds to; must be an integer between 1 and 65535 inclusive. |
+| `MARZPAY_API_KEY` | yes | MarzPay sandbox API key |
+| `MARZPAY_SECRET_KEY` | yes | MarzPay sandbox secret key |
+| `MARZPAY_ENVIRONMENT` | no (default `sandbox`) | `sandbox` or `production` |
+| `APP_URL` | yes | Public base URL |
+| `PORT` | yes | TCP port (1–65535) |
+| `SUPABASE_URL` | no | Enables the Supabase store when set |
+| `SUPABASE_KEY` | no | Supabase service-role (or anon) key |
 
-## Obtaining MarzPay Sandbox Credentials
+Full details, including how the SQLite ↔ Supabase switch works, are in
+[docs/configuration.md](docs/configuration.md).
 
-`MARZPAY_API_KEY` and `MARZPAY_SECRET_KEY` are your MarzPay **sandbox** credentials. Retrieve them from your **MarzPay sandbox dashboard**: sign in to your MarzPay account, switch to the sandbox environment, and copy the API key and secret key from the API credentials section. Paste those two values into your `.env` file. The credentials are sent as HTTP Basic auth over HTTPS when the plugin talks to the sandbox.
+## End-to-end payment flow
 
-## End-to-End Payment Flow
+1. Customer chooses an amount (SPA) / uses the fixed amount (server-rendered),
+   enters a phone number, and submits.
+2. The checkout handler validates input and calls
+   `marzpay.collections.collectMoney({ amount, country: 'UG', reference, phone_number })`
+   against the MarzPay sandbox, then persists a `pending` record keyed by the
+   generated reference.
+3. The customer approves the mobile-money prompt on their phone.
+4. MarzPay POSTs a webhook to `/webhooks/marzpay`.
+5. The webhook handler validates the request (best-effort), then authoritatively
+   confirms via `collections.getStatus(reference)`; on a completed status it
+   reads `transactions.get(reference)` for the confirmed amount/currency.
+6. The confirmed payment is recorded as completed (idempotently).
+7. The success page / SPA shows the stored payment — "Payment Successful" only
+   once the stored status is completed.
 
-The complete mobile-money flow proceeds in this order:
+## Webhook signature limitation
 
-1. **Enter phone and click "Pay".** The customer opens the Home page, enters their mobile-money phone number, and clicks the "Pay 5000 UGX" button, which submits the phone number to the Checkout handler.
-2. **Initiate the collection against the sandbox.** The Checkout handler validates the phone number and calls `marzpay.collections.collectMoney({ amount: 5000, country: 'UG', reference, phone_number })` against the MarzPay sandbox, then persists a `pending` payment record keyed by the generated reference and directs the customer to the success page.
-3. **Approve the prompt on the phone.** The customer approves the mobile-money payment prompt on their phone.
-4. **Webhook delivery.** MarzPay sends a webhook to the Webhook handler at `POST /webhooks/marzpay`.
-5. **Validate and authoritatively confirm.** The Webhook handler validates the inbound webhook (best-effort) and then authoritatively confirms completion by calling `collections.getStatus(reference)`. Only when the returned status indicates a completed/successful payment does it read `transactions.get(reference)` for the confirmed amount and currency.
-6. **Persist the confirmed payment.** The confirmed payment is recorded as completed in the built-in SQLite payment store (idempotently, so re-delivered webhooks never create duplicates).
-7. **Success page.** The customer's success page (`/success?reference=<reference>`) displays the stored payment: its reference, the amount and currency, and the status. It shows "Payment Successful" once the stored status is completed, and an awaiting-approval message while the payment is still `pending`.
+The MarzPay webhook **signature scheme** is a documented limitation of
+`@streetjs/plugin-marzpay`. `validateWebhook(rawBody, signature)` is therefore a
+**best-effort gate only** — never the sole basis for completion. Completion is
+**authoritatively confirmed** via `collections.getStatus(reference)` (status) and
+`transactions.get(reference)` (amount/currency) before a payment is marked
+complete, and is derived from the returned status value rather than any assumed
+event name.
 
-## Webhook Signature Limitation
+## Testing
 
-The MarzPay webhook **signature scheme** is a documented limitation of the `@streetjs/plugin-marzpay` plugin. Because of this, `validateWebhook(rawBody, signature)` is treated only as a **best-effort gate** — it is never the sole basis for marking a payment complete. Payment completion is instead **authoritatively confirmed** by calling `collections.getStatus(reference)` (to determine the completed/successful status) together with `transactions.get(reference)` (to read the confirmed amount and currency) before any payment is recorded as completed. Completion is derived from the returned status value rather than from any assumed webhook event name, which is likewise undocumented.
+```bash
+npm test            # vitest --run (unit + property-based + smoke + integration)
+```
+
+Property tests use `fast-check` (≥100 runs each); only the MarzPay client
+boundary is stubbed and SQLite runs in-memory, so the helpers, controllers, and
+store are exercised deterministically. Live-sandbox integration tests run only
+when real credentials are present and skip cleanly otherwise.
+
+## Project structure
+
+```
+src/
+  server.ts                 Bootstrap, app assembly, serverless handler
+  config.ts                 Pure env validation
+  controllers/              Home, Checkout, Webhook, Success (server-rendered)
+                            + api.controller.ts (JSON API for the SPA)
+  services/marzpay-*.ts     Pure helpers + MarzPay client types
+  db/                       payments.ts (SQLite), supabase-store.ts, store.ts (facade)
+  web-static.ts             Serves the built SPA under /app
+  views/                    Server-rendered HTML templates
+web/                        React SPA (Vite + @streetjs/client + @streetjs/react)
+supabase/schema.sql         Supabase table for the append-only store
+test/                       Unit, property-based, smoke, and integration tests
+```
+
+## License
+
+MIT
