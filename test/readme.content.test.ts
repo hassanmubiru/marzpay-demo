@@ -97,12 +97,22 @@ describe("README content (Task 11.2)", () => {
 
   // Requirement 8.3: ordered end-to-end flow stages.
   it("describes the end-to-end payment flow as an ordered sequence of stages", () => {
-    assertOrdered(readme, [
-      "Pay", // customer enters phone and clicks "Pay"
+    // Scope the ordering check to the dedicated flow section so generic words
+    // (e.g. "Pay", "approve") in the intro don't perturb relative positions.
+    const sectionStart = readme.indexOf("## End-to-End Payment Flow");
+    expect(sectionStart).toBeGreaterThanOrEqual(0);
+    const afterStart = readme.indexOf("\n## ", sectionStart + 3);
+    const flowSection = readme.slice(
+      sectionStart,
+      afterStart === -1 ? readme.length : afterStart,
+    );
+
+    assertOrdered(flowSection, [
+      'clicks the "Pay 5000 UGX"', // customer enters phone and clicks "Pay"
       "collectMoney", // checkout initiates collection against the sandbox
-      "approve", // customer approves the prompt on their phone
-      "webhook", // MarzPay sends a webhook to the webhook handler
-      "getStatus", // validate + authoritative confirmation
+      "approves the mobile-money payment prompt", // customer approves on their phone
+      "webhook to the Webhook handler", // MarzPay sends a webhook
+      "getStatus(reference)", // validate + authoritative confirmation
       "SQLite", // persist confirmed payment to the store
       "success page", // success page displays the payment
     ]);
