@@ -226,7 +226,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - _Requirements: 1.1, 1.2, 1.3, 1.10, 6.1_
 
 - [ ] 11. Write README documentation
-  - [ ] 11.1 Create `README.md`
+  - [-] 11.1 Create `README.md`
     - Document setup as an ordered numbered sequence with literal commands in this exact order: clone the repo, change into the directory, install with `npm install streetjs @streetjs/plugin-marzpay` (noting the `street add marzpay` alternative), copy `.env.example` to `.env`, add sandbox keys, run `npm run dev`
     - Document each environment variable (`MARZPAY_API_KEY`, `MARZPAY_SECRET_KEY`, `MARZPAY_ENVIRONMENT`, `APP_URL`, `PORT`) with name, one-line purpose, and whether mandatory at startup (noting `MARZPAY_ENVIRONMENT` is optional and defaults to `sandbox`)
     - Describe the end-to-end mobile-money flow as an ordered sequence (enter phone + "Pay" → checkout collection against the sandbox → approve prompt on phone → webhook → validate + authoritative `getStatus` confirmation → persist → success page); state the reachable URL in terms of `APP_URL` and `PORT`; document how to obtain the MarzPay sandbox credentials and their source; note the webhook-signature-scheme plugin limitation and that completion is authoritatively confirmed via `collections.getStatus` and `transactions.get`
