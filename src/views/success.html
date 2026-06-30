@@ -4,42 +4,118 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Payment Status &middot; StreetJS + MarzPay Demo</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
     <!--
       Success_Page (Requirements 7.1, 7.2, 7.3).
 
       TEMPLATING CONVENTION (SuccessController must match this exactly):
-      ------------------------------------------------------------------
-      This template uses simple double-brace placeholder tokens that the
-      SuccessController replaces (string substitution) before sending the
-      response. The controller is the single place that decides what each
-      token resolves to.
-
         {{reference}}      -> the stored Payment_Record reference
         {{amount}}         -> the stored amount (number)
         {{currency}}       -> the stored currency code (e.g. "UGX")
         {{status}}         -> the stored status value (e.g. "pending", "completed")
         {{statusMessage}}  -> the status-driven, human-readable message.
 
-      STATUS-DRIVEN RULE (Req 7.2 / 7.3) — IMPORTANT:
-        The success message text is NEVER hard-coded in this static template
-        (not even in this comment), so a pending page never contains the
-        completed-state wording by accident. The success message is injected
-        ONLY through {{statusMessage}}, and ONLY when isCompletedStatus(status)
-        is true. The controller fills {{statusMessage}} as follows:
-          - completed/successful status -> the success message
-            (the exact words "Payment" + "Successful")
-          - pending status              -> an awaiting-approval message, e.g.
-            "Your payment is awaiting approval on your phone."
-        This guarantees the success message is shown only for a completed
-        status and never for a pending one.
+      STATUS-DRIVEN RULE (Req 7.2 / 7.3): the success wording is NEVER hard-coded
+      in this static template. It is injected ONLY through {{statusMessage}}, and
+      ONLY when isCompletedStatus(status) is true; a pending status yields an
+      awaiting-approval message instead. The amount/currency render as
+      "{amount} {currency}" (single literal space) per Req 7.1.
 
-      The amount and currency are displayed together as "{amount} {currency}"
-      (amount, a single space, then the currency code) per Req 7.1 — note the
-      single literal space between the two tokens below.
+      The {{status}} token is also placed in data-status so the status pill can
+      be colour-coded purely in CSS without any controller logic.
     -->
+    <style>
+      :root {
+        --bg-1: #0b1220;
+        --bg-2: #111c3a;
+        --card: rgba(255, 255, 255, 0.96);
+        --text: #0f172a;
+        --muted: #5b6b86;
+        --accent: #4f46e5;
+        --accent-2: #2563eb;
+        --border: #e6eaf2;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1100px 600px at 12% -10%, #1e3a8a 0%, transparent 55%),
+          radial-gradient(900px 600px at 110% 10%, #6d28d9 0%, transparent 50%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      }
+      .card {
+        width: 100%;
+        max-width: 30rem;
+        background: var(--card);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 1.25rem;
+        padding: 2.25rem;
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.45);
+        backdrop-filter: blur(6px);
+        animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      h1 { margin: 0 0 1rem; font-size: 1.5rem; letter-spacing: -0.02em; }
+      .status-message {
+        font-size: 1.05rem;
+        font-weight: 600;
+        line-height: 1.5;
+        margin: 0 0 1.5rem;
+        padding: 0.9rem 1rem;
+        border-radius: 0.75rem;
+        background: #f1f5fb;
+        border: 1px solid var(--border);
+      }
+      .details {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.85rem 1.25rem;
+        margin: 0 0 1.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px dashed var(--border);
+      }
+      .details dt { font-weight: 600; color: var(--muted); align-self: center; }
+      .details dd { margin: 0; word-break: break-all; align-self: center; }
+      .reference { font-family: "SF Mono", ui-monospace, "Cascadia Code", Menlo, monospace; font-size: 0.92rem; }
+      .amount { font-weight: 700; font-size: 1.05rem; }
+      .pill {
+        display: inline-block;
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        text-transform: capitalize;
+        background: #e2e8f0;
+        color: #334155;
+      }
+      .pill[data-status="pending"] { background: #fef3c7; color: #92400e; }
+      .pill[data-status="completed"],
+      .pill[data-status="successful"],
+      .pill[data-status="success"] { background: #dcfce7; color: #166534; }
+      .pill[data-status="failed"],
+      .pill[data-status="cancelled"] { background: #fee2e2; color: #991b1b; }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .back-link:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
     <main class="card">
       <h1>Payment Status</h1>
 
@@ -53,10 +129,10 @@
         <dd class="amount">{{amount}} {{currency}}</dd>
 
         <dt>Status</dt>
-        <dd class="status">{{status}}</dd>
+        <dd><span class="pill" data-status="{{status}}">{{status}}</span></dd>
       </dl>
 
-      <p><a class="back-link" href="/">Start another payment</a></p>
+      <a class="back-link" href="/">&larr; Start another payment</a>
     </main>
   </body>
 </html>
