@@ -225,18 +225,18 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Assert `package.json` declares `streetjs`, `@streetjs/plugin-marzpay`, and `reflect-metadata`, sets `"type": "module"`, declares a Node `>=20` engine, and has a `dev` script that builds and starts the server; assert `tsconfig.json` enables `experimentalDecorators`, `emitDecoratorMetadata`, and `NodeNext`; assert `.env.example` lists the five variables; assert the `payments` schema has the six columns with `reference` NOT NULL UNIQUE; assert README content is present
     - _Requirements: 1.1, 1.2, 1.3, 1.10, 6.1_
 
-- [ ] 11. Write README documentation
+- [x] 11. Write README documentation
   - [x] 11.1 Create `README.md`
     - Document setup as an ordered numbered sequence with literal commands in this exact order: clone the repo, change into the directory, install with `npm install streetjs @streetjs/plugin-marzpay` (noting the `street add marzpay` alternative), copy `.env.example` to `.env`, add sandbox keys, run `npm run dev`
     - Document each environment variable (`MARZPAY_API_KEY`, `MARZPAY_SECRET_KEY`, `MARZPAY_ENVIRONMENT`, `APP_URL`, `PORT`) with name, one-line purpose, and whether mandatory at startup (noting `MARZPAY_ENVIRONMENT` is optional and defaults to `sandbox`)
     - Describe the end-to-end mobile-money flow as an ordered sequence (enter phone + "Pay" → checkout collection against the sandbox → approve prompt on phone → webhook → validate + authoritative `getStatus` confirmation → persist → success page); state the reachable URL in terms of `APP_URL` and `PORT`; document how to obtain the MarzPay sandbox credentials and their source; note the webhook-signature-scheme plugin limitation and that completion is authoritatively confirmed via `collections.getStatus` and `transactions.get`
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [-] 11.2 Write README content checks
+  - [x] 11.2 Write README content checks
     - Assert the ordered setup steps with literal commands (including `npm install streetjs @streetjs/plugin-marzpay` and the `street add marzpay` note), per-variable documentation, the ordered end-to-end flow, the credential acquisition source, the reachable URL expressed via `APP_URL` and `PORT`, and the webhook-signature-limitation note
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-- [ ] 12. Final checkpoint - Ensure all tests pass
+- [-] 12. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
