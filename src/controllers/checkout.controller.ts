@@ -38,6 +38,39 @@ const PENDING_STATUS = "pending";
 /** Upper bound on the raw request body we are willing to read (1 MB). */
 const MAX_BODY_BYTES = 1024 * 1024;
 
+/**
+ * Inline stylesheet shared by this controller's small status/error pages. The
+ * demo server does not serve a static asset route, so styling is inlined to
+ * keep the 400/502 pages consistent with the home and success pages.
+ */
+const INLINE_PAGE_STYLE = `<style>
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0; min-height: 100vh; display: flex; align-items: center;
+        justify-content: center; padding: 1.5rem; color: #0f172a;
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background:
+          radial-gradient(1100px 600px at 12% -10%, #1e3a8a 0%, transparent 55%),
+          radial-gradient(900px 600px at 110% 10%, #6d28d9 0%, transparent 50%),
+          linear-gradient(160deg, #0b1220, #111c3a);
+      }
+      .card {
+        width: 100%; max-width: 30rem; background: rgba(255,255,255,0.96);
+        border: 1px solid rgba(255,255,255,0.6); border-radius: 1.25rem;
+        padding: 2.25rem; box-shadow: 0 24px 60px rgba(2,6,23,0.45);
+      }
+      h1 { margin: 0 0 1rem; font-size: 1.5rem; letter-spacing: -0.02em; }
+      .status-message {
+        font-size: 1.02rem; font-weight: 600; line-height: 1.5; margin: 0 0 1.5rem;
+        padding: 0.9rem 1rem; border-radius: 0.75rem; background: #f1f5fb;
+        border: 1px solid #e6eaf2;
+      }
+      .status-message.error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+      .back-link { color: #4f46e5; font-weight: 600; text-decoration: none; }
+      .back-link:hover { text-decoration: underline; }
+    </style>`;
+
 @Controller("/checkout")
 export class CheckoutController {
   /**
