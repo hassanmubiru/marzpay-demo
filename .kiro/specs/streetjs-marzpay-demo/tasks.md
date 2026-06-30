@@ -122,13 +122,13 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - On success → `insertPending` a record (amount 5000, currency `UGX`, status `pending`) and redirect to `/success?reference=<ref>`; on error or timeout → HTTP 502 "payment initiation failed" with no `Payment_Record` persisted
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
 
-  - [ ] 6.4 Write property test for phone gating
+  - [-] 6.4 Write property test for phone gating
     - **Property 6: Invalid phone numbers are rejected without a collection**
     - **Validates: Requirements 4.1, 4.2**
     - Generators: absent/empty/invalid phone strings (stub `isValidPhoneNumber=false`, spy `collectMoney`); assert HTTP 400, a "valid phone number is required" message, and `collectMoney` never invoked
     - Tag: `// Feature: streetjs-marzpay-demo, Property 6: ...`, minimum 100 runs
 
-  - [ ] 6.5 Write property test for valid checkout shaping and pending persistence
+  - [-] 6.5 Write property test for valid checkout shaping and pending persistence
     - **Property 7: Valid checkout shapes the collection and persists a pending record**
     - **Validates: Requirements 4.4, 4.5**
     - Generators: valid phone strings with a successful stubbed `collectMoney`; assert `collectMoney` called with exactly `{ amount: 5000, country: 'UG', phone_number, reference }`, exactly one pending record persisted (amount 5000, currency `UGX`, status `pending`), and redirect to `/success?reference=<ref>`
