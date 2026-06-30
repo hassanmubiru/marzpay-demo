@@ -70,8 +70,6 @@ export function isCompletedStatus(status: string): boolean {
 
 /** Result of parsing a webhook body for its payment reference. */
 export type WebhookParse =
-  | { ok: true; reference: string }
-  | { ok: false; reason: "unparseable" | "missing_reference" };
 
 /**
  * Parse a (best-effort validated) webhook body to extract the payment
