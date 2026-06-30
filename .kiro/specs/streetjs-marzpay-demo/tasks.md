@@ -45,7 +45,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: absent/empty (⇒ resolves to `sandbox`), exactly `sandbox`/`production` (⇒ resolves to the input), and arbitrary other non-empty strings (⇒ `ok: false` naming `MARZPAY_ENVIRONMENT`)
     - Tag: `// Feature: streetjs-marzpay-demo, Property 3: ...`, minimum 100 runs
 
-- [ ] 3. Implement the built-in-SQLite persistence layer (`src/db/payments.ts` — `Payment_Store`)
+- [x] 3. Implement the built-in-SQLite persistence layer (`src/db/payments.ts` — `Payment_Store`)
   - [x] 3.1 Implement schema initialization and types
     - Define `PaymentRecord`, `NewPayment`, `WriteResult`, and `LookupResult` types per the design
     - Implement `initSchema()` against the StreetJS built-in SQLite, creating the `payments` table with columns id (PK AUTOINCREMENT), reference (TEXT NOT NULL UNIQUE), amount (REAL NOT NULL), currency (TEXT NOT NULL), status (TEXT NOT NULL), created_at (TEXT NOT NULL ISO 8601 UTC)
@@ -70,13 +70,13 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: an arbitrary reference processed 1..k times (repeated `insertPending`/`markCompleted`) against an in-memory DB; assert exactly one row remains for that reference with no duplicates
     - Tag: `// Feature: streetjs-marzpay-demo, Property 13: ...`, minimum 100 runs
 
-  - [-] 3.5 Write property test for lookup round-trip
+  - [x] 3.5 Write property test for lookup round-trip
     - **Property 14: Lookup round-trip returns the stored record**
     - **Validates: Requirements 6.5**
     - Generators: random persisted records; assert `findByReference(reference)` returns `found: true` with a record equal to the one stored
     - Tag: `// Feature: streetjs-marzpay-demo, Property 14: ...`, minimum 100 runs
 
-  - [-] 3.6 Write property test for unknown-reference lookups
+  - [x] 3.6 Write property test for unknown-reference lookups
     - **Property 15: Lookup of an unknown reference reports not found**
     - **Validates: Requirements 6.6**
     - Generators: references guaranteed absent from the store; assert `findByReference` returns a not-found result
