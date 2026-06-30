@@ -152,7 +152,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Generators: arbitrary raw bodies + signatures with `validateWebhook` stubbed to return false; assert HTTP 401 and every existing `Payment_Record` left unchanged (in-memory DB)
     - Tag: `// Feature: streetjs-marzpay-demo, Property 9: ...`, minimum 100 runs
 
-  - [-] 6.9 Write property test for validated-but-unusable webhooks
+  - [x] 6.9 Write property test for validated-but-unusable webhooks
     - **Property 10: Validated but unusable webhooks return 400 and change nothing**
     - **Validates: Requirements 5.3**
     - Generators: `validateWebhook=true` with non-JSON bodies or JSON lacking a reference; assert HTTP 400 and every existing `Payment_Record` left unchanged
