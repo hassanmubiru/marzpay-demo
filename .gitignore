@@ -35,5 +35,8 @@ Thumbs.db
 .idea/
 *.swp
 
+# Kiro spec working files
+.kiro/specs/streetjs-marzpay-demo/
+
 # Keep the example env template tracked
 !.env.example
