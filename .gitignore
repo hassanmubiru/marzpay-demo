@@ -3,6 +3,8 @@ node_modules/
 
 # Build output
 dist/
+web/node_modules/
+web/dist/
 
 # Environment files (contain secrets — never commit)
 .env
