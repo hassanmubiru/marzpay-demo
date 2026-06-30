@@ -236,7 +236,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Assert the ordered setup steps with literal commands (including `npm install streetjs @streetjs/plugin-marzpay` and the `street add marzpay` note), per-variable documentation, the ordered end-to-end flow, the credential acquisition source, the reachable URL expressed via `APP_URL` and `PORT`, and the webhook-signature-limitation note
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-- [-] 12. Final checkpoint - Ensure all tests pass
+- [x] 12. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
