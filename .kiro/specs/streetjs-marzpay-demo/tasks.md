@@ -220,8 +220,8 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - Install the plugin with real sandbox credentials and confirm the MarzPay client is exposed at `ctx.state.marzpay`; drive the live mobile-money path `collectMoney` → `getStatus`/`transactions.get` against `MarzPay_Sandbox`; confirm the port binds only after valid configuration and a successful install (1–3 representative cases, no mocks)
     - _Requirements: 1.9, 2.2, 2.3, 2.4, 4.4, 5.6, 6.2_
 
-- [ ] 10. Smoke and configuration tests
-  - [-] 10.1 Write smoke/config tests for project artifacts
+- [x] 10. Smoke and configuration tests
+  - [x] 10.1 Write smoke/config tests for project artifacts
     - Assert `package.json` declares `streetjs`, `@streetjs/plugin-marzpay`, and `reflect-metadata`, sets `"type": "module"`, declares a Node `>=20` engine, and has a `dev` script that builds and starts the server; assert `tsconfig.json` enables `experimentalDecorators`, `emitDecoratorMetadata`, and `NodeNext`; assert `.env.example` lists the five variables; assert the `payments` schema has the six columns with `reference` NOT NULL UNIQUE; assert README content is present
     - _Requirements: 1.1, 1.2, 1.3, 1.10, 6.1_
 
