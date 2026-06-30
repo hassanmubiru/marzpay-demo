@@ -205,7 +205,7 @@ The integration boundary is the MarzPay client injected by the plugin at `ctx.st
     - `registerController` for `HomeController`, `CheckoutController`, `SuccessController`, `WebhookController` (relying on StreetJS default 404 for unmatched paths); call `initSchema()`; then `await app.listen()`
     - _Requirements: 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.1, 2.2, 2.3, 2.4, 2.5_
 
-  - [-] 8.2 Write property test for unmatched-route 404s
+  - [x] 8.2 Write property test for unmatched-route 404s
     - **Property 4: Unmatched routes return 404**
     - **Validates: Requirements 2.6**
     - Generators: random method+path pairs excluded from the four registered routes (`GET /`, `POST /checkout`, `GET /success`, `POST /webhooks/marzpay`); assert HTTP 404 against the real app
