@@ -124,11 +124,22 @@ export class WebhookController {
     }
 
     // (4) Completed → read the confirmed amount/currency/status from
-    // transactions.get and record completion (Req 5.6, 6.2).
+    // transactions.get and record completion (Req 5.6, 6.2). Guard against a
+    // zero/empty amount from the sandbox's transactions.get by falling back to
+    // the amount/currency already stored at checkout, so completion never
+    // clobbers the real values.
     const txn = await marzpay.transactions.get(reference);
+    const existing = await findByReference(reference);
+    const fallbackAmount = existing.found ? existing.payment.amount : txn.amount;
+    const fallbackCurrency = existing.found
+      ? existing.payment.currency
+      : txn.currency;
     const write = await markCompleted(reference, {
-      amount: txn.amount,
-      currency: txn.currency,
+      amount: Number.isFinite(txn.amount) && txn.amount > 0 ? txn.amount : fallbackAmount,
+      currency:
+        typeof txn.currency === "string" && txn.currency.trim() !== ""
+          ? txn.currency
+          : fallbackCurrency,
       status: txn.status,
     });
     if (!write.ok) {
