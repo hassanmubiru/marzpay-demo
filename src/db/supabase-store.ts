@@ -139,14 +139,26 @@ export async function findByReference(
     a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0,
   );
   const earliest = sorted[0]!;
-  const effective = sorted[sorted.length - 1]!;
+  const latest = sorted[sorted.length - 1]!;
+
+  // Status reflects the most recent event. Amount/currency, however, are taken
+  // from the most recent event that carries a *valid* value — so a completion
+  // event that reports a zero amount (as the sandbox sometimes does via
+  // transactions.get) never clobbers the real amount set at checkout. This also
+  // self-heals any record previously completed with amount 0.
+  const amountSource =
+    [...sorted].reverse().find((e) => Number(e.amount) > 0) ?? latest;
+  const currencySource =
+    [...sorted].reverse().find(
+      (e) => typeof e.currency === "string" && e.currency.trim() !== "",
+    ) ?? latest;
 
   const payment: PaymentRecord = {
-    id: effective.id ?? 0,
+    id: latest.id ?? 0,
     reference,
-    amount: effective.amount,
-    currency: effective.currency,
-    status: effective.status,
+    amount: amountSource.amount,
+    currency: currencySource.currency,
+    status: latest.status,
     createdAt: earliest.created_at,
   };
   return { found: true, payment };
