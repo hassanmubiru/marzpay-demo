@@ -34,13 +34,54 @@ const EVENTS_TABLE = "payment_events";
 let client: SupabaseClient | null = null;
 
 /** A raw PostgREST row from the events table (numbers arrive as JSON numbers). */
-interface EventRow {
+export interface EventRow {
   id?: number;
   reference: string;
   amount: number;
   currency: string;
   status: string;
   created_at: string;
+}
+
+/**
+ * Pure reduction of a reference's append-only events into the current payment.
+ * Exported for testing. Status comes from the most recent event; amount and
+ * currency come from the most recent event that carries a *valid* value, so a
+ * zero-amount completion never clobbers the amount set at checkout (and any
+ * record previously completed with amount 0 self-heals on read). Returns
+ * `{ found: false }` for an empty event list.
+ */
+export function derivePayment(
+  reference: string,
+  events: EventRow[],
+): LookupResult {
+  if (events.length === 0) {
+    return { found: false };
+  }
+  const sorted = [...events].sort((a, b) =>
+    a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0,
+  );
+  const earliest = sorted[0]!;
+  const latest = sorted[sorted.length - 1]!;
+  const amountSource =
+    [...sorted].reverse().find((e) => Number(e.amount) > 0) ?? latest;
+  const currencySource =
+    [...sorted]
+      .reverse()
+      .find((e) => typeof e.currency === "string" && e.currency.trim() !== "") ??
+    latest;
+
+  return {
+    found: true,
+    payment: {
+      id: latest.id ?? 0,
+      reference,
+      amount: amountSource.amount,
+      currency: currencySource.currency,
+      status: latest.status,
+      createdAt: earliest.created_at,
+    },
+  };
 }
 
 /** Read and validate the Supabase connection settings from the environment. */
@@ -131,37 +172,7 @@ export async function findByReference(
   reference: string,
 ): Promise<LookupResult> {
   const events = await readEvents(reference);
-  if (events.length === 0) {
-    return { found: false };
-  }
-
-  const sorted = [...events].sort((a, b) =>
-    a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0,
-  );
-  const earliest = sorted[0]!;
-  const latest = sorted[sorted.length - 1]!;
-
-  // Status reflects the most recent event. Amount/currency, however, are taken
-  // from the most recent event that carries a *valid* value — so a completion
-  // event that reports a zero amount (as the sandbox sometimes does via
-  // transactions.get) never clobbers the real amount set at checkout. This also
-  // self-heals any record previously completed with amount 0.
-  const amountSource =
-    [...sorted].reverse().find((e) => Number(e.amount) > 0) ?? latest;
-  const currencySource =
-    [...sorted].reverse().find(
-      (e) => typeof e.currency === "string" && e.currency.trim() !== "",
-    ) ?? latest;
-
-  const payment: PaymentRecord = {
-    id: latest.id ?? 0,
-    reference,
-    amount: amountSource.amount,
-    currency: currencySource.currency,
-    status: latest.status,
-    createdAt: earliest.created_at,
-  };
-  return { found: true, payment };
+  return derivePayment(reference, events);
 }
 
 /** Fetch all events for a reference via the plugin's PostgREST select. */
