@@ -112,6 +112,22 @@ export function App() {
     setPhase("idle");
   }, [stopPolling]);
 
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshStatus = useCallback(async () => {
+    if (!payment) return;
+    setRefreshing(true);
+    try {
+      const latest = await api
+        .resource<PaymentDto>("payments")
+        .get(payment.reference);
+      setPayment(latest);
+    } catch {
+      /* transient — leave current state */
+    } finally {
+      setRefreshing(false);
+    }
+  }, [api, payment]);
+
   return (
     <main className="card">
       <div className="brand">
