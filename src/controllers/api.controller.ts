@@ -166,10 +166,21 @@ export class ApiPaymentsController {
         const status = await marzpay.collections.getStatus(reference);
         if (isCompletedStatus(status.status)) {
           const txn = await marzpay.transactions.get(reference);
+          // Prefer the confirmed transaction fields, but never clobber the
+          // amount/currency set at checkout with an empty/zero value (the
+          // sandbox's transactions.get sometimes returns amount 0).
+          const amount =
+            Number.isFinite(txn.amount) && txn.amount > 0
+              ? txn.amount
+              : payment.amount;
+          const currency =
+            typeof txn.currency === "string" && txn.currency.trim() !== ""
+              ? txn.currency
+              : payment.currency;
           const write = await markCompleted(reference, {
-            amount: txn.amount,
-            currency: txn.currency,
-            status: txn.status,
+            amount,
+            currency,
+            status: status.status,
           });
           if (write.ok) {
             const refreshed = await findByReference(reference);
