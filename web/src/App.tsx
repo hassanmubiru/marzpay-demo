@@ -257,6 +257,17 @@ export function App() {
           <button type="button" className="ghost" onClick={reset}>
             Start another payment
           </button>
+          {!payment.completed && (
+            <button
+              type="button"
+              className="ghost"
+              onClick={refreshStatus}
+              disabled={refreshing}
+              style={{ marginTop: "0.6rem" }}
+            >
+              {refreshing ? "Checking…" : "Refresh status"}
+            </button>
+          )}
         </>
       )}
     </main>
